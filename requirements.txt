@@ -1,0 +1,3 @@
+# ATLAS Problem 1 — Requirements
+# Implementation is built entirely on Python standard library (Python >= 3.10)
+# Zero external packages required for StudyGraph, Patient 360, reasoning, and evaluation harness.

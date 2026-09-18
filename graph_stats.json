@@ -1,0 +1,18 @@
+{
+  "nodes": 27166,
+  "edges": 29038,
+  "subjects": 241,
+  "records_by_domain": {
+    "DM": 241,
+    "AE": 294,
+    "LB": 14400,
+    "VS": 7200,
+    "EX": 2154,
+    "CM": 468,
+    "DS": 240,
+    "MH": 488,
+    "EG": 1440
+  },
+  "cuts": 12,
+  "build_time_seconds": 0.855
+}

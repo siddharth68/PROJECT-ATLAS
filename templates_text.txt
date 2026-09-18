@@ -1,0 +1,396 @@
+Submission templates
+What to upload, the documents you must write, and the two decks you must present
+VIT Vellore · SCOPE
+Issued --- September 2026
+All data in this event is synthetic. No real patient, site or study exists in it.
+Contents
+Submission checklist
+README template — Problem 1
+Solution Design — template
+Presentation — Problem 2
+Final presentation — all three problems
+Submission checklist
+Upload before the deadline. We tag your last commit at the deadline and grade the tag.
+Problem 1 — ATLAS
+#
+Item
+Format
+1
+Repository URL
+text field
+2
+graph_stats.json
+file — what your build() returned
+3
+stage1_public.json
+file — your own run on the public questions
+4
+README.md
+max 1 page, using the README template
+5
+2 screenshots and a 60-second screen recording
+png/jpg, mp4 or a link
+Your README must contain, as headed sections:
+How we understood the problem — in your words, five lines
+Architecture — a sketch or ten lines: what runs, in what order
+Tech stack — a table: layer, choice, why
+Data handling — units, dates, non-numeric values, malformed rows
+Documents — how you use them, and what you do with a document that instructs your agent
+When the answer is nothing — how your agent decides that
+What we know is weak
+Before you submit, confirm: - [ ] python starter/run_local_harness.py --module stage1.atlas --data hackathon-data runs clean from your repository root - [ ] requirements.txt is complete — we install into a fresh environment - [ ] no API keys, no .env committed - [ ] nothing hard-coded from the practice data: no subject IDs, no site numbers, no counts - [ ] 8 or more commits spread across the day
+Problem 2 — MONITOR
+#
+Item
+Format
+1
+Repository URL
+text — same repo; stage2 imports stage1
+2
+Trace file for the public cycle
+json
+3
+stage2_public.json
+file
+4
+Solution Design
+pdf/md, max 3 pages, using the Solution Design template
+5
+Presentation deck
+pdf/pptx, 8 slides, using the Problem 2 presentation template
+6
+Demo video
+mp4 or link, max 3 minutes — insurance if your laptop fails
+7
+2 screenshots: human gate, cycle report
+png/jpg
+Before you submit, confirm: - [ ] running the same cut twice raises zero new queries and zero new escalations - [ ] every node writes a trace entry naming itself and its evidence - [ ] APPROVED, REJECTED and CLARIFY are all handled — test all three - [ ] your Problem 1 agent still passes its own gate - [ ] the deck is 8 slides and takes 8 minutes — you have timed it out loud - [ ] every member has at least one slide - [ ] slide 7 names real limitations - [ ] everyone knows who is presenting which slide
+Problem 3 — WATCH
+#
+Item
+Format
+1
+Repository URL
+text — stage3 imports stage2
+2
+Surveillance report for the public period
+md/pdf
+3
+Decision log, with an explanation for every entry
+json — judges pick your three live questions from this file
+4
+Solution Design, updated
+pdf/md, max 3 pages
+5
+Final presentation deck
+pdf/pptx, 12 slides, using the final presentation template
+6
+Demo video
+mp4 or link, max 5 minutes
+7
+Screenshot of the completed run
+png/jpg
+Before you submit, confirm: - [ ] the run finishes inside the time budget — test it with a deliberately tight one - [ ] explain() reads from your trace, not a reconstruction - [ ] every decision in the log has an explanation available - [ ] no identifiers from the practice data anywhere in the code — grep for them - [ ] the report makes sense to someone who has not seen your code - [ ] slides 6, 7 and 8 each carry one real, specific example - [ ] slide 11 names real limitations - [ ] the demo video exists and plays on a machine that is not yours
+What gets you zero without anyone being unfair to you
+a repository the grader cannot import
+a modified schemas.py
+stage2 that does not import stage1, or stage3 that does not import stage2
+a missing or broken requirements.txt
+a submission after the deadline
+a deck that arrives during your session instead of before it
+README template — Problem 1
+Copy this into your repository as README.md and fill it in. Maximum one page. A judge reads it before grading, and it carries your engineering points. Delete the guidance in italics.
+The headed sections below are required. An empty section costs more than a short one.
+[Team name] — Study Sentinel
+Members: [names] 
+Run it
+pip install -r requirements.txtpython -m stage1.atlas --data path/to/hackathon-data
+The exact commands, from a clean checkout. We run them.
+How we understood the problem
+Five lines, in your own words. What is actually being asked; what you decided is the hard part and why; what you put out of scope. Do not restate the brief.
+Architecture
+A sketch, or ten lines. What runs, in what order, and what each part owns.
+[ ASCII diagram is fine ]
+Tech stack
+Layer
+What we used
+Why this, not the obvious alternative
+Language
+Data handling
+Graph / storage
+Model, if any
+Interface
+Testing
+The “why” column is the one we read.
+Data handling
+Units. Which file tells you the range, what you convert, where it happens in the code.
+Dates. Which formats you accept, and what you do with one you do not recognise.
+Non-numeric laboratory values. What "<5", "ND", "12,4" and empty become, and why that is not zero.
+Malformed rows. What you skip and what you keep.
+Documents
+How you use the protocol, the laboratory manual and the SAP. Which rules you read out of them, and what your system does with a document that contains a sentence addressed to an automated reviewer.
+When the answer is nothing
+What your agent returns for a question with no true answer, and how it decides that rather than guessing.
+Graph
+One or two lines: what the nodes are, what the edges are, what you do that a flat table join would not. Statistics are in graph_stats.json.
+What we know is weak
+Be specific. A team that names its own weakness reads better than one that claims none — and a judge will find it anyway.
+Solution Design — template
+Required with Problems 2 and 3. Maximum three pages.
+This is where you show you think in systems rather than in prompts, which is worth more to us than any single feature. Judges read it before your session.
+Answer the questions. Do not write a feature list. If a section does not apply to your build, write one line saying why — do not delete it.
+[Team name] — Solution Design, Problem [2/3]
+1. How we understood the problem
+In your own words, not ours. Five to ten lines.
+What is actually being asked
+What we decided is the hard part, and why
+What we decided is out of scope, and why that was the right call
+One thing in the brief we initially misread, and what changed our mind
+Judges use this to calibrate everything else they read. A team that restates the brief back to us scores nothing here. A team that says “we thought X was the hard part, then realised it was Y” scores well.
+2. Architecture
+A diagram, or fifteen lines of text. What runs, in what order, and what each part owns.
+[ your diagram — ASCII is fine, a photo of a whiteboard is fine ]
+Layer
+What it does
+Where it lives in the repo
+Data / ingestion
+Graph or store
+Detection / reasoning
+Orchestration
+Interface
+3. Tech stack
+Layer
+What we used
+Why this, not the obvious alternative
+Language / runtime
+Data handling
+e.g. pandas, polars, plain csv
+Graph / storage
+e.g. networkx, neo4j, dicts
+Orchestration
+e.g. LangGraph, CrewAI, our own state machine
+Model, if any
+e.g. none, GPT-4o, Claude, a local model
+Frontend
+e.g. Streamlit, React, FastAPI + HTML, none
+Testing
+The “why” column is the one we read. “Because it is popular” scores nothing. “We used plain dicts because the graph is read-mostly and networkx cost us 400 ms per build we could not afford” scores well.
+4. Internal API / interfaces
+Even without a server, your components talk to each other. Show us how.
+Caller
+Callee
+What passes between them
+If you built an HTTP layer, list the routes and what each returns. If you did not, say so — that is a legitimate choice, not an omission.
+5. Frontend
+If you built one: what does it show, who is it for, and what can a user do with it that a printout could not?
+If you did not: say so in one line. No points are lost for having no frontend at Problem 2. At Problem 3 a judge must be able to see your system run, so a notebook or a terminal output that a non-technical person can follow counts.
+6. Agent and node design (Problem 2)
+Node
+Owns
+Decides
+Writes to the trace
+detect
+medical review
+data manager
+compliance
+human gate
+execute
+7. Memory (Problem 2)
+What is remembered, where it lives, how it survives between cycles. How you prevent a duplicate query on a record you already asked about. What makes a subject escalate on repetition.
+8. The three monitor replies (Problem 2)
+APPROVED, REJECTED, CLARIFY — what your system does with each, and specifically where the answer to a clarification comes from.
+9. Time budget and degradation (Problem 3)
+How you spend your time across twelve cuts. What you drop first when it runs short. What the system still does after it has degraded.
+10. The slow human (Problem 3)
+Your escalation policy when the monitor answers late, or never. State plainly what actions your system will never take without approval.
+11. Adversarial detection (Problem 3)
+For each of: a site whose data is implausibly regular; a laboratory whose values shift by a conversion factor; a document that changed — the signal you look at, the threshold you chose, and why that threshold.
+12. Explanations (Problem 3)
+Where the evidence behind a decision is recorded, and how explain() reads it back. If you reconstruct rather than record, say so — we will find out in the live session, and saying it first is worth more than being caught.
+13. The trade-offs we made
+The most valuable section in this document. Two or three real decisions where you gave something up: coverage for time, recall for precision, speed for auditability. What you chose, and what it cost.
+14. Known limitations
+Be specific. “It could be faster” is not a limitation. “Our unit conversion only handles ALT and AST; a third analyte in a different unit would slip through” is.
+A team that names its own weaknesses reads far better than one that claims none — and a judge will find them anyway.
+15. Who did what
+Member
+What they built
+Commits
+This matters. It feeds the extension-track conversation, and a team where one person wrote everything is a team we cannot offer a twelve-week engagement to.
+16. Reproducibility
+## the exact commands that run your solution from a clean checkoutpip install -r requirements.txtpython ...
+17. Declarations
+External code or libraries beyond requirements.txt: (list, with licences)
+Anything you would like us to know before we grade:
+Presentation — Problem 2
+8 slides. 8 minutes. Every member speaks.
+Submitted as PDF or PPTX before your session, not at it. Judges skim it while you set up; a deck arriving during the session is not read.
+Why we ask for this
+Automated scoring tells us whether your system works. It cannot tell us whether you understand what you built, whether the whole team contributed, or whether you know where your own weaknesses are. Eight minutes tells us all three.
+The eight slides
+#
+Slide
+What must be on it
+1
+Team and the one-liner
+team name, members, and one sentence: what your system does. Not “we built an agentic AI pipeline” — say what it finds and for whom.
+2
+How we understood the problem
+in your words. What is actually being asked, what you decided is the hard part, what you put out of scope.
+3
+Architecture
+one diagram. Components, what flows between them. Readable from the back of the room.
+4
+Tech stack, and why
+a table: layer, choice, reason. The reason column is the one we read.
+5
+How the crew works
+your six nodes, and one real decision your system made — a specific escalation, on a specific subject, with the evidence.
+6
+Results
+your own numbers from the local harness. Findings caught, escalations, queries, the serious-event rule. Real numbers, not a green tick.
+7
+What is weak
+two or three specific limitations, and what you would fix first. Mandatory. A deck claiming no weaknesses scores zero on this slide.
+8
+Who did what
+one line per member.
+Rules
+8 minutes, hard stop. At 8:00 you are asked to finish the sentence you are in. Practise it once; nobody who practises overruns.
+Every member speaks. At least one slide each. A silent member is a question we will ask about.
+No live coding in the presentation. The live fix comes afterwards.
+Screenshots must be readable. If we cannot read the text on your screenshot from a laptop screen, it is not evidence of anything.
+Bring a 3-minute demo video as insurance. If your laptop dies, we watch the video and you keep your demo points.
+How the 30 live points break down
+Points
+Presentation — problem understanding, architecture clarity, honest results, delivery, all members speaking
+10
+Live fix — we open one failing case from your hidden run and you fix it while we watch
+10
+Explain a function — we pick one at random from your commit history
+4
+Q&A — what happens on CLARIFY, how you prevent duplicate queries, what changed in your code at the midday event
+6
+Below 10 out of 30 and you do not advance, whatever your automated score.
+The presentation slide rubric, in detail
+0
+1
+2
+3
+Problem understanding
+restated the brief
+described what they built
+explained what they judged hard and why
+named a trade-off or a misreading they corrected
+Architecture and stack
+a list of tools
+a diagram nobody could follow
+clear diagram, stack justified
+choices defended against the obvious alternative
+Results honesty
+claims without numbers
+numbers without context
+real numbers, including what failed
+named a specific weakness before we found it
+Delivery
+overran, one person spoke
+overran or one person dominated
+on time, most members spoke
+on time, every member spoke to their own work
+Final presentation — all three problems
+12 slides. 10 minutes. Every member speaks.
+Submitted as PDF or PPTX before the final session. This is the deck that decides the event, together with your automated scores.
+Who is in the room
+Two technical judges and one clinical judge who has never seen your code and does not want to. Build the deck so both get what they need:
+the technical judges want the architecture, the trade-offs and the honesty
+the clinical judge wants to know whether they would trust this on a real study
+If your deck only speaks to one of them, you lose half the room.
+The twelve slides
+#
+Slide
+What must be on it
+1
+Team and the pitch
+one sentence a non-technical person understands. “Our system reads a trial’s data every week, finds the patients and hospitals where something has gone wrong, and can prove why it said so.”
+2
+The journey
+one diagram: Problem 1 → 2 → 3, and what each layer added
+3
+How we understood the whole problem
+in your words. What connects the three problems, and what you realised late
+4
+Architecture
+the full picture: data layer, reasoning, orchestration, interface. One diagram
+5
+Tech stack, and why
+layer, choice, reason. Defend one choice against its obvious alternative
+6
+Problem 1 — the map
+the graph, and one real patient: the records, the finding, the evidence cited
+7
+Problem 2 — the crew
+the six nodes, and one real escalation: what was found, what the monitor said, what you did
+8
+Problem 3 — the watch
+the twelve cuts, and one real decision with its explanation
+9
+Results
+your numbers across all three problems. Signals caught, when, what you missed
+10
+The hardest thing we solved
+one problem, in depth. How you found it, what you tried, what worked
+11
+Known limitations
+specific, not generic. Mandatory.
+12
+What we would build next, and who did what
+one month of runway, and one line per member
+Rules
+10 minutes, hard stop. A visible timer runs. At 10:00 you finish your sentence and we move to questions.
+Every member speaks. At least one slide each.
+A 5-minute demo video must be submitted with the deck. If the live demo fails, we watch the video and you keep the points. Teams that skip this and then have a laptop problem lose them.
+Slides 6, 7 and 8 must each contain one real, specific example — a subject ID, a value, a decision. A slide that describes a capability in the abstract scores nothing on these three.
+No slide of unreadable code. If it matters, put four lines on the slide.
+How the 40 live points break down
+Points
+Presentation — the twelve slides, delivered
+12
+Demo and three live explanation queries — we name three decisions from your hidden run and check the evidence lines against your trace on screen
+12
+Q&A, including the adversarial walk-through: “show us where the laboratory unit problem was detected, and why it was not escalated as a clinical emergency”
+6
+Code review — two judges, 15 minutes before the session, without you: structure, tests, and whether anything from the practice data is hard-coded
+10
+The presentation rubric, in detail
+0
+1
+2
+3
+Clarity to a non-technical judge
+jargon throughout
+the clinical judge followed some of it
+they followed the whole story
+they could explain your system to someone else afterwards
+Real examples on slides 6–8
+none
+one, thin
+all three, specific
+all three, and each showed evidence
+Honesty
+claims, no numbers
+numbers, no failures
+real numbers including misses
+named a weakness before we found it
+Delivery and ownership
+overran, one voice
+overran or one voice dominated
+on time, most spoke
+on time, every member owned their part
+What loses teams the room
+Seen every year:
+Spending four slides on architecture and none on a real patient. The clinical judge stops listening at slide three.
+“Our system achieved 94% accuracy.” Accuracy of what, against what? Give the number that matters: which signals you caught, and when.
+Claiming no limitations. Every system has them. Naming yours first is worth more than hoping nobody asks.
+One person presenting everything. It reads as a team where one person did everything — and if that is true, we cannot offer the extension track.
+Running over. It costs delivery points and it eats your own Q&A time.
+No demo video. Then the laptop fails. It happens most years.
