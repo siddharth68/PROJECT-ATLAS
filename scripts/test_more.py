@@ -1,10 +1,14 @@
+import os
+import sys
 import subprocess
 import time
 import requests
 
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Start server
-proc = subprocess.Popen(['python', 'server.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-time.sleep(4)
+proc = subprocess.Popen([sys.executable, 'app.py'], cwd=REPO_ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+time.sleep(3)
 
 tests = [
     ("How many subjects in the study?", "Count subjects"),

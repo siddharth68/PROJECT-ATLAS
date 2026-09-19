@@ -173,6 +173,12 @@ class Atlas:
         q_lower = question.lower()
         apply_exclusions = "without exclusion" not in q_lower and "all candidates" not in q_lower
 
+        # If cut was specified in question or parameter, ensure graph is reconstructed at that cut
+        if cut is not None and self.graph._build_cut != cut:
+            self.graph.build(cut=cut)
+        elif cut is None and self.graph._build_cut is not None:
+            self.graph.build(cut=None)
+
         # Find candidates
         candidates = find_hys_law_candidates(
             self.graph,
@@ -231,6 +237,7 @@ class Atlas:
                     "confidence": 1.0,
                     "total_candidates": len(candidates),
                     "after_exclusions": len(valid_candidates),
+                    "candidates": [c["usubjid"] for c in valid_candidates],
                 },
             )
 

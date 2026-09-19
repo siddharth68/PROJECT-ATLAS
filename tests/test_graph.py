@@ -50,12 +50,20 @@ def ok(label: str, cond: bool, detail: str = ""):
 
 
 DATA_DIR = None  # set in main()
+_default_graph = None
 
 
 def _build_graph(cut=None) -> StudyGraph:
+    global _default_graph
+    if cut is None:
+        if _default_graph is None:
+            _default_graph = StudyGraph(DATA_DIR)
+            _default_graph.build(None)
+        return _default_graph
     g = StudyGraph(DATA_DIR)
     g.build(cut)
     return g
+
 
 
 # ── Test 1: single-subject graph construction ────────────────────────

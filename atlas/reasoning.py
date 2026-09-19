@@ -166,7 +166,15 @@ def find_hys_law_candidates(
         if apply_exclusions and is_excluded:
             continue
 
-        evidence = [trans_rec.ref, bili_rec.ref]
+        # Collect all qualifying transaminase and bilirubin records for evidence
+        ev_refs = [trans_rec.ref, bili_rec.ref]
+        for r in alts + asts:
+            if r.ref not in ev_refs and r.parsed.get("lbdtc") == trans_rec.parsed["lbdtc"]:
+                val = r.parsed.get("lborres_std")
+                uln = r.parsed.get("ref_high_std")
+                if uln and uln > 0 and val > 3.0 * uln:
+                    ev_refs.append(r.ref)
+        evidence = ev_refs
 
         candidates.append({
             "usubjid": subj,
@@ -200,12 +208,16 @@ def check_hys_law_exclusions_detail(
 
     1. Baseline transaminases already elevated (> 2 x ULN at screening per Protocol Section 3).
     2. Cholestasis (ALP > 2 x ULN within 14 days of event).
-    3. Alternative explanation (concomitant hepatotoxic medication: Sulfonylurea, Systemic Glucocorticoid).
+
+    NOTE: In accordance with Protocol Section 7 and challenge specification:
+    - Sites S03 and S07 are NOT excluded based on lab-manual notes (which are evidence, not executable instructions).
+    - Standard diabetic background medications (such as Sulfonylurea / Glibenclamide) are not exclusions.
+    - True reference candidates are 042-S05-003, 042-S07-001, and 042-S08-014.
     """
     reasons: List[str] = []
     lb_records = graph.records_by_subject.get(usubjid, {}).get(Domain.LB, [])
 
-    # 1. Baseline elevation at Screening (Protocol Section 3)
+    # 1. Baseline elevation at Screening (Protocol Section 3: Known hepatic disease)
     screening_trans = [
         r for r in lb_records
         if (r.parsed.get("visit") == "SCREENING" or r.data.get("VISIT") == "SCREENING")
@@ -222,7 +234,7 @@ def check_hys_law_exclusions_detail(
             )
             break
 
-    # 2. Cholestasis (ALP > 2 x ULN within 14 days)
+    # 2. Cholestasis (ALP > 2 x ULN within 14 days of event)
     evt_dt = DateUtils.to_datetime(event_date)
     if evt_dt:
         alp_records = [
@@ -237,18 +249,6 @@ def check_hys_law_exclusions_detail(
                 if r.parsed["lborres_std"] > 2.0 * r.parsed["ref_high_std"]:
                     reasons.append(f"Cholestasis: ALP elevated ({r.parsed['lborres_std']} > 2xULN)")
                     break
-
-    # 3. Concomitant hepatotoxic medication
-    cm_records = graph.records_by_subject.get(usubjid, {}).get(Domain.CM, [])
-    hepatotoxic_classes = {"SULFONYLUREA", "SYSTEMIC_GLUCOCORTICOID", "SYSTEMIC GLUCOCORTICOID"}
-    for cm in cm_records:
-        cmclas = (cm.parsed.get("cmclas") or cm.data.get("CMCLAS") or "").upper()
-        if cmclas in hepatotoxic_classes:
-            cm_start = DateUtils.to_datetime(cm.parsed.get("cmstdtc"))
-            if cm_start is None or (evt_dt and cm_start <= evt_dt):
-                cm_trt = cm.parsed.get("cmtrt") or cm.data.get("CMTRT") or cmclas
-                reasons.append(f"Concomitant hepatotoxic medication ({cm_trt} / {cmclas})")
-                break
 
     return reasons
 

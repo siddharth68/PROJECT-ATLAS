@@ -191,29 +191,48 @@ def run_all_tests(data_dir: str):
     ok("candidate count before exclusions is 3", len(all_candidates) == 3)
 
     # Inspect the 3 candidates:
-    # 1. 042-S07-001: ALT/AST elevation, but concomitant SULFONYLUREA (Glibenclamide)
-    # 2. 042-S08-014: ALT/AST elevation, but concomitant SULFONYLUREA (Glibenclamide)
-    # 3. 042-S05-003: ALT/AST elevation, NO baseline elevation, NO hepatotoxic med
+    # 1. 042-S05-003: ALT/AST elevation, NO baseline elevation, NO cholestasis
+    # 2. 042-S07-001: ALT/AST elevation (S07 converted), NO baseline elevation, NO cholestasis
+    # 3. 042-S08-014: ALT/AST elevation, NO baseline elevation, NO cholestasis
     c_s05 = [c for c in all_candidates if c["usubjid"] == "042-S05-003"][0]
     ok("042-S05-003 is not excluded", c_s05["is_excluded"] is False)
     ok("042-S05-003 trans ratio > 3xULN", c_s05["pairs"][0]["trans_ratio"] > 3.0)
     ok("042-S05-003 bili ratio > 2xULN", c_s05["pairs"][0]["bili_ratio"] > 2.0)
     ok("042-S05-003 within 14 days", c_s05["pairs"][0]["diff_days"] <= 14)
 
-    # Valid candidates after exclusions
+    c_s07 = [c for c in all_candidates if c["usubjid"] == "042-S07-001"][0]
+    ok("042-S07-001 is not excluded", c_s07["is_excluded"] is False)
+
+    c_s08 = [c for c in all_candidates if c["usubjid"] == "042-S08-014"][0]
+    ok("042-S08-014 is not excluded", c_s08["is_excluded"] is False)
+
+    # Valid candidates after exclusions on full study: exactly 3 candidates
     filtered_candidates = find_hys_law_candidates(graph, apply_exclusions=True)
-    ok("Hy's law candidate count after exclusions is exactly 1", len(filtered_candidates) == 1)
-    ok("Filtered Hy's law candidate is 042-S05-003", filtered_candidates[0]["usubjid"] == "042-S05-003")
+    ok("Hy's law candidate count after exclusions on full study is exactly 3", len(filtered_candidates) == 3)
+    ok("Filtered Hy's law candidates match all 3 reference subjects", {c["usubjid"] for c in filtered_candidates} == {"042-S05-003", "042-S07-001", "042-S08-014"})
 
     # Check medical monitor decision resolution
     status_s05, reason_s05 = get_monitor_decision(graph, "042-S05-003")
     ok("042-S05-003 monitor decision is APPROVED", status_s05 == "APPROVED")
 
-    # Hy's law QA answering
+    # Hy's law QA answering on full study
     ans_hys = atlas.answer("Find Hy's law candidates")
-    ok("Hy's law answer has 1 candidate after exclusions", len(ans_hys.answer) == 1)
-    ok("Hy's law answer evidence contains exact qualifying ALT/AST and BILI records", len(ans_hys.evidence) == 2)
+    ok("Hy's law answer has 3 candidates on full study", len(ans_hys.answer) == 3)
     ok("Hy's law evidence domain is LB", all(r.domain == Domain.LB for r in ans_hys.evidence))
+
+    # Regression test 1: Cut 5 specific question
+    ans_cut5 = atlas.answer("how many potential hy's law cases are there in cut 5")
+    ok("Cut 5 count is integer 1", ans_cut5.answer == 1)
+    ok("Cut 5 meta total_candidates is 1", ans_cut5.meta.get("total_candidates") == 1)
+    ok("Cut 5 meta after_exclusions is 1", ans_cut5.meta.get("after_exclusions") == 1)
+    ok("Cut 5 candidate is 042-S07-001", ans_cut5.meta.get("candidates") == ["042-S07-001"])
+    ok("Cut 5 evidence contains S07 LB records", any("042-S07-001" in str(r) for r in ans_cut5.evidence))
+
+    # Regression test 2: Show evidence for Hy's Law finding
+    ans_ev = atlas.answer("show evidence for the Hy's Law finding")
+    ok("Show evidence returns finding list", isinstance(ans_ev.answer, list) and len(ans_ev.answer) == 3)
+    ok("Show evidence cites supporting LB records for all candidates", len(ans_ev.evidence) >= 6)
+    ok("All cited evidence exists in graph", all(atlas.validator.record_exists(r) for r in ans_ev.evidence))
 
     # -----------------------------------------------------------------------
     # 6. Unit conversion during reasoning

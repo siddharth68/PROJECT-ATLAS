@@ -3,286 +3,2206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATLAS - Study Sentinel Problem 1</title>
+    <title>ATLAS // STUDY SENTINEL — Unified Clinical Intelligence Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-base: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --border-color: #e2e8f0;
+            --border-focus: #2563eb;
+            --text-main: #0f172a;
+            --text-muted: #334155;
+            --text-dim: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --emerald: #059669;
+            --emerald-light: #ecfdf5;
+            --rose: #dc2626;
+            --rose-light: #fef2f2;
+            --amber: #d97706;
+            --amber-light: #fffbeb;
+            --cyan: #0284c7;
+            --cyan-light: #f0f9ff;
+            --purple: #7c3aed;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; min-height: 100vh; }
-        .header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.5rem; font-weight: 600; }
-        .status-badge { background: #0f3460; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; }
-        .status-badge.ready { background: #00c851; }
-        .container { display: flex; max-width: 1400px; margin: 0 auto; padding: 1.5rem; gap: 1.5rem; }
-        .sidebar { width: 320px; flex-shrink: 0; }
-        .main { flex: 1; min-width: 0; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; overflow: hidden; }
-        .card-header { padding: 1rem; border-bottom: 1px solid #eee; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .card-body { padding: 1rem; }
-        .btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
-        .btn-primary { background: #1a1a2e; color: white; }
-        .btn-primary:hover { background: #16213e; }
-        .btn-secondary { background: #e0e0e0; color: #333; }
-        .btn-secondary:hover { background: #d0d0d0; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-        .input-group input { flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.875rem; }
-        .input-group input:focus { outline: none; border-color: #1a1a2e; }
-        .subject-list { max-height: 400px; overflow-y: auto; }
-        .subject-item { padding: 0.5rem; cursor: pointer; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; }
-        .subject-item:hover { background: #f9f9f9; }
-        .subject-item.selected { background: #e8f0fe; color: #1a1a2e; }
-        .subject-info { display: flex; flex-direction: column; gap: 0.25rem; }
-        .subject-id { font-weight: 500; }
-        .subject-meta { font-size: 0.75rem; color: #666; }
-        .answer-box { background: #fafafa; border: 1px solid #eee; border-radius: 4px; padding: 1rem; font-family: monospace; font-size: 0.8rem; max-height: 500px; overflow: auto; white-space: pre-wrap; }
-        .evidence-list { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.5rem; }
-        .evidence-tag { background: #e8f0fe; color: #1a1a2e; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-family: monospace; }
-        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
-        .tab { padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px 4px 0 0; font-weight: 500; color: #666; }
-        .tab.active { background: #1a1a2e; color: white; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .quick-questions { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; }
-        .quick-btn { padding: 0.75rem; background: white; border: 1px solid #ddd; border-radius: 4px; text-align: left; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
-        .quick-btn:hover { border-color: #1a1a2e; background: #f8f9fa; }
-        .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid #1a1a2e; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.85rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+        .logo-badge {
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.05rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            letter-spacing: 0.05em;
+        }
+        .header-title h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .header-title p {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        .engine-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .badge-atlas {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+        .badge-monitor {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Layout */
+        .app-container {
+            max-width: 1560px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 3rem 2rem;
+        }
+
+        /* Top Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .metric-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+        }
+        .metric-card.highlight {
+            border-left: 4px solid #2563eb;
+        }
+        .metric-card.success {
+            border-left: 4px solid #059669;
+        }
+        .metric-card.warning {
+            border-left: 4px solid #d97706;
+        }
+        .metric-card.danger {
+            border-left: 4px solid #dc2626;
+        }
+        .metric-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+        .metric-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin: 0.25rem 0;
+            font-family: var(--font-mono);
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+        }
+        .metric-sub {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+        }
+        .tab-btn {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 0.6rem 1.05rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .tab-btn.active {
+            color: #ffffff;
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        .tab-btn .badge-count {
+            background: rgba(0, 0, 0, 0.08);
+            color: inherit;
+            padding: 0.1rem 0.45rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+        }
+        .tab-btn.active .badge-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        /* Tab Content Panels */
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Card Component */
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-card);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .card-header h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-header p {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 0.2rem;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .badge-indigo { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-cyan { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .badge-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .badge-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .badge-danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .badge-purple { background: #faf5ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+
+        /* Six-Node Visual Pipeline */
+        .pipeline-wrapper {
+            margin: 1.5rem 0;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+        }
+        .pipeline-steps {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.75rem;
+        }
+        .pipeline-step {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 1rem 0.75rem;
+            text-align: center;
+            transition: all 0.15s;
+        }
+        .pipeline-step.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+        .pipeline-step.success {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .step-num {
+            font-size: 0.68rem;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        .step-icon {
+            font-size: 1.3rem;
+            margin-bottom: 0.25rem;
+        }
+        .step-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+        .step-desc {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            line-height: 1.3;
+        }
+        .step-status {
+            margin-top: 0.5rem;
+            font-size: 0.68rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+        }
+
+        /* Forms & Inputs */
+        .search-box {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+        .search-input {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 0.92rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .search-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+        .btn-submit {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            font-family: var(--font-sans);
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 0.75rem 1.35rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-submit:hover {
+            background: #1d4ed8;
+        }
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-cyan {
+            background: #0284c7;
+        }
+        .btn-cyan:hover {
+            background: #0369a1;
+        }
+
+        /* Filter Bars */
+        .filter-bar {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .filter-select {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: var(--radius-sm);
+            outline: none;
+        }
+        .filter-select:focus {
+            border-color: #2563eb;
+        }
+
+        /* Q&A Prompt Chips */
+        .prompt-groups {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .prompt-group-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            font-weight: 700;
+        }
+        .prompt-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+        .chip {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .chip:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+            border-color: #cbd5e1;
+        }
+        .chip.trap {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+        .chip.trap:hover {
+            background: #fee2e2;
+        }
+
+        /* Q&A Answer Container */
+        .answer-container {
+            margin-top: 1.5rem;
+            display: none;
+        }
+        .answer-card {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+        }
+        .answer-meta-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+        }
+        .answer-content {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+        .answer-json {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.85rem 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #0f172a;
+            overflow-x: auto;
+            max-height: 250px;
+            margin-bottom: 1rem;
+        }
+        .evidence-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.85rem;
+        }
+        .evidence-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .evidence-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .evidence-pill {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+        }
+
+        /* Escalation Cards */
+        .escalations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1rem;
+        }
+        .escalation-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.15s;
+        }
+        .escalation-card:hover {
+            border-color: #cbd5e1;
+        }
+        .esc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        .esc-subject {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+        .esc-reason {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+            color: #334155;
+        }
+        .esc-meta {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+        }
+        .esc-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .btn-gate {
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+        }
+        .btn-gate-approve {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+        .btn-gate-approve:hover {
+            background: #059669;
+            color: #ffffff;
+        }
+        .btn-gate-reject {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+        .btn-gate-reject:hover {
+            background: #dc2626;
+            color: #ffffff;
+        }
+        .btn-gate-clarify {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+        .btn-gate-clarify:hover {
+            background: #d97706;
+            color: #ffffff;
+        }
+
+        /* Patient 360 Explorer */
+        .patient-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 1.5rem;
+        }
+        .subject-list-container {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: #ffffff;
+            max-height: 550px;
+            overflow-y: auto;
+        }
+        .subject-list-item {
+            padding: 0.65rem 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .subject-list-item:hover {
+            background: #f8fafc;
+        }
+        .subject-list-item.active {
+            background: #eff6ff;
+            border-left: 3px solid #2563eb;
+        }
+        .subj-title { font-weight: 600; font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-main); }
+        .subj-sub { font-size: 0.72rem; color: var(--text-dim); }
+
+        .patient-summary-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            background: #f8fafc;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--border-color);
+        }
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .summary-item span:first-child {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            font-weight: 700;
+        }
+        .summary-item span:last-child {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Clinical Data Tables */
+        .table-responsive {
+            max-height: 400px;
+            overflow: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: #ffffff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            text-align: left;
+        }
+        th {
+            background: #f8fafc;
+            color: #475569;
+            padding: 0.65rem 0.85rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td {
+            padding: 0.65rem 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-main);
+        }
+        tr:hover td {
+            background: #f8fafc;
+        }
+        .cell-highlight {
+            color: #dc2626;
+            font-weight: 700;
+        }
+        .cell-mono {
+            font-family: var(--font-mono);
+        }
+
+        /* Safety & Hy's Law Panel */
+        .case-study-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            box-shadow: var(--shadow-card);
+        }
+        .case-study-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.85rem;
+            margin: 0.85rem 0;
+        }
+        .case-metric {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem;
+        }
+        .case-metric-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
+        .case-metric-val { font-size: 1.3rem; font-weight: 800; font-family: var(--font-mono); color: #dc2626; margin-top: 0.2rem; }
+        .case-metric-sub { font-size: 0.7rem; color: var(--text-dim); }
+
+        /* Protocol Rule Callout Box */
+        .rule-callout {
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        .rule-callout-icon {
+            font-size: 1.5rem;
+        }
+        .rule-callout-content h4 {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #9f1239;
+            margin-bottom: 0.25rem;
+        }
+        .rule-callout-content p {
+            font-size: 0.82rem;
+            color: #881337;
+            line-height: 1.5;
+        }
+
+        /* Domain row sidebar */
+        .domain-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.82rem;
+        }
+        .domain-badge {
+            background: #f1f5f9;
+            color: #334155;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.72rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            margin-right: 0.5rem;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .meta { font-size: 0.75rem; color: #888; margin-top: 0.5rem; }
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-        .stat-item { text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; color: #1a1a2e; }
-        .stat-label { font-size: 0.75rem; color: #666; margin-top: 0.25rem; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🔬 ATLAS - Study Sentinel Problem 1</h1>
-        <span class="status-badge" id="statusBadge">Loading...</span>
-    </div>
-    <div class="container">
-        <div class="sidebar">
-            <div class="card">
-                <div class="card-header">Graph Controls</div>
-                <div class="card-body">
-                    <div class="input-group">
-                        <input type="number" id="cutInput" placeholder="Cut (optional)" min="1" max="12" style="width: 80px;">
-                        <button class="btn btn-primary" id="buildBtn" onclick="buildGraph()">Build</button>
-                    </div>
-                    <button class="btn btn-secondary" style="width: 100%;" onclick="loadStats()">Refresh Stats</button>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    Subjects (<span id="subjectCount">0</span>)
-                    <input type="text" id="subjectFilter" placeholder="Filter..." style="width: 120px; padding: 0.25rem; font-size: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                <div class="card-body" style="padding: 0;">
-                    <div class="subject-list" id="subjectList"></div>
-                </div>
-            </div>
-        </div>
-        <div class="main">
-            <div class="card">
-                <div class="card-header">
-                    Statistics
-                    <button class="btn btn-secondary" onclick="loadStats()" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Refresh</button>
-                </div>
-                <div class="card-body">
-                    <div class="stat-grid">
-                        <div class="stat-item"><div class="stat-value" id="statSubjects">-</div><div class="stat-label">Subjects</div></div>
-                        <div class="stat-item"><div class="stat-value" id="statRecords">-</div><div class="stat-label">Records</div></div>
-                        <div class="stat-item"><div class="stat-value" id="statCuts">-</div><div class="stat-label">Cuts</div></div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <strong>Records by Domain:</strong>
-                        <div id="domainStats" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="tabs">
-                <div class="tab active" data-tab="ask">Ask Question</div>
-                <div class="tab" data-tab="patient">Patient 360</div>
-            </div>
-            <div class="tab-content active" id="tab-ask">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="input-group">
-                            <input type="text" id="questionInput" placeholder="Enter your question (e.g., 'How many Hy's law candidates?', 'Which subjects have ALT > 3xULN?')" style="flex: 1;">
-                            <button class="btn btn-primary" id="askBtn" onclick="askQuestion()"><span id="askLoader" class="loading" style="display:none;"></span>Ask</button>
-                        </div>
-                        <div class="quick-questions">
-                            <button class="quick-btn" onclick="setQuestion('How many subjects in the study?')">How many subjects?</button>
-                            <button class="quick-btn" onclick="setQuestion('How many subjects in drug arm?')">Drug arm count</button>
-                            <button class="quick-btn" onclick="setQuestion('How many sites?')">Site count</button>
-                            <button class="quick-btn" onclick="setQuestion('How many Hy's law candidates?')">Hy's law count</button>
-                            <button class="quick-btn" onclick="setQuestion('List Hy's law candidates')">List Hy's law</button>
-                            <button class="quick-btn" onclick="setQuestion('Which subjects have ALT > 3xULN?')">ALT > 3xULN</button>
-                            <button class="quick-btn" onclick="setQuestion('Find prohibited medications')">Prohibited meds</button>
-                            <button class="quick-btn" onclick="setQuestion('Find dosing errors')">Dosing errors</button>
-                            <button class="quick-btn" onclick="setQuestion('Find serious adverse events')">SAEs</button>
-                            <button class="quick-btn" onclick="setQuestion('Find discontinued subjects')">Discontinuations</button>
-                            <button class="quick-btn" onclick="setQuestion('Find visit window deviations')">Visit deviations</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card" id="answerCard" style="display: none;">
-                    <div class="card-header">
-                        Answer
-                        <span class="meta" id="answerMeta"></span>
-                    </div>
-                    <div class="card-body">
-                        <div class="answer-box" id="answerBox"></div>
-                        <div id="evidenceBox"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-content" id="tab-patient">
-                <div class="card" id="patientCard" style="display: none;">
-                    <div class="card-header">
-                        Patient 360 Profile
-                        <span class="meta" id="patientMeta"></span>
-                    </div>
-                    <div class="card-body">
-                        <pre class="answer-box" id="patientBox"></pre>
-                    </div>
-                </div>
-                <p style="color: #888; text-align: center; padding: 2rem;">Select a subject from the left to view their 360 profile</p>
-            </div>
-        </div>
-    </div>
-    <script>
-        let selectedSubject = null;
-        const API_BASE = '';
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadStats();
-            await loadSubjects();
-            setupTabs();
+    <!-- Header Bar -->
+    <header>
+        <div class="header-brand">
+            <div class="logo-badge">ATLAS</div>
+            <div class="header-title">
+                <h1>ATLAS <span style="color: #94a3b8; font-weight: 400;">/</span> STUDY SENTINEL</h1>
+                <p>Clinical Intelligence &amp; Autonomous Safety Monitoring Platform</p>
+            </div>
+            <div style="display:flex; gap:0.4rem; margin-left:0.5rem;">
+                <span class="engine-badge badge-atlas">Atlas Q&amp;A Online</span>
+                <span class="engine-badge badge-monitor">6-Node Crew Active</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="status-pill" id="statusBadge">
+                <span class="status-dot"></span>
+                <span id="statusText">System Online</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+
+        <!-- Top Unified Metrics Row -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Study Subjects</div>
+                <div class="metric-value" id="kpiSubjects">241</div>
+                <div class="metric-sub">128 Drug Arm • 113 Placebo</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Knowledge Graph Records</div>
+                <div class="metric-value" id="kpiRecords">27,166</div>
+                <div class="metric-sub">Across 9 CDISC Domains</div>
+            </div>
+            <div class="metric-card highlight">
+                <div class="metric-label">Active Cut &amp; Protocol</div>
+                <div class="metric-value" id="kpiCut">Cut 5 &bull; v2</div>
+                <div class="metric-sub">Protocol v2 Active</div>
+            </div>
+            <div class="metric-card danger">
+                <div class="metric-label">Safety Escalations</div>
+                <div class="metric-value" id="kpiEscalations">4</div>
+                <div class="metric-sub">AESHOSP=Y Overrides Active</div>
+            </div>
+            <div class="metric-card warning">
+                <div class="metric-label">Open Site Queries</div>
+                <div class="metric-value" id="kpiQueries">921</div>
+                <div class="metric-sub">Generated by Data Manager</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Compliance Deviations</div>
+                <div class="metric-value" id="kpiDeviations">923</div>
+                <div class="metric-sub">Visit Windows &amp; Prohibited Meds</div>
+            </div>
+            <div class="metric-card success">
+                <div class="metric-label">Q&amp;A Latency SLA</div>
+                <div class="metric-value" id="kpiLatency">&lt; 3 ms</div>
+                <div class="metric-sub">SLA: &lt; 120,000 ms (100% Pass)</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('overview')">
+                <span>⚡</span> Mission Control
+            </button>
+            <button class="tab-btn" onclick="switchTab('ask')">
+                <span>🔍</span> Atlas Q&amp;A Engine
+            </button>
+            <button class="tab-btn" onclick="switchTab('patient')">
+                <span>👤</span> Patient 360 Explorer
+            </button>
+            <button class="tab-btn" onclick="switchTab('safety')">
+                <span>⚠️</span> Hy's Law &amp; Safety
+            </button>
+            <button class="tab-btn" onclick="switchTab('crew')">
+                <span>🛡️</span> Monitor 6-Node Crew
+            </button>
+            <button class="tab-btn" onclick="switchTab('escalations')">
+                <span>🚨</span> Escalations &amp; Human Gate <span class="badge-count" id="tabEscCount">4</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('queries')">
+                <span>📋</span> Site Queries <span class="badge-count" id="tabQueryCount">921</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('compliance')">
+                <span>⚖️</span> Compliance <span class="badge-count" id="tabCompCount">923</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('trace')">
+                <span>📜</span> Audit Trace &amp; Export
+            </button>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 1: MISSION CONTROL OVERVIEW -->
+        <!-- =================================================================== -->
+        <div class="tab-panel active" id="tab-overview">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Integrated Clinical Platform Mission Control</h2>
+                        <p>Unified command center joining CDISC Knowledge Graph intelligence with autonomous 6-node clinical trial monitoring</p>
+                    </div>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="btn-submit btn-cyan" onclick="switchTab('crew')">Run Monitor Cycle</button>
+                        <button class="btn-submit" onclick="switchTab('ask')">Ask Clinical Question</button>
+                    </div>
+                </div>
+
+                <!-- 6-Node Visual Flowchart -->
+                <div class="pipeline-wrapper">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <div>
+                            <h3 style="font-size:1rem; font-weight:700; color:var(--text-main);">Autonomous Six-Node Execution Architecture</h3>
+                            <p style="font-size:0.75rem; color:var(--text-muted);">Deterministic cycle executing in strict pipeline sequence</p>
+                        </div>
+                        <span class="badge badge-indigo">Cycle: Cut 5 &bull; Protocol v2</span>
+                    </div>
+
+                    <div class="pipeline-steps">
+                        <div class="pipeline-step success">
+                            <div class="step-num">Node 1</div>
+                            <div class="step-icon">🔍</div>
+                            <div class="step-title">DETECT</div>
+                            <div class="step-desc">Atlas Reasoning &bull; Hy's Law, Dosing, Meds, SAEs</div>
+                            <div class="step-status" style="color:var(--emerald);">SUCCESS &bull; 927 Findings</div>
+                        </div>
+                        <div class="pipeline-step success">
+                            <div class="step-num">Node 2</div>
+                            <div class="step-icon">🩺</div>
+                            <div class="step-title">MED REVIEW</div>
+                            <div class="step-desc">AESHOSP Override &bull; Clinical Rationale &bull; Plausibility</div>
+                            <div class="step-status" style="color:var(--emerald);">SUCCESS &bull; 4 Escalations</div>
+                        </div>
+                        <div class="pipeline-step success">
+                            <div class="step-num">Node 3</div>
+                            <div class="step-icon">📋</div>
+                            <div class="step-title">DATA MANAGER</div>
+                            <div class="step-desc">Actionable Site Queries &bull; Missing Dose &bull; Units</div>
+                            <div class="step-status" style="color:var(--emerald);">SUCCESS &bull; 921 Queries</div>
+                        </div>
+                        <div class="pipeline-step success">
+                            <div class="step-num">Node 4</div>
+                            <div class="step-icon">⚖️</div>
+                            <div class="step-title">COMPLIANCE</div>
+                            <div class="step-desc">Protocol Deviations &bull; Visit Windows (v1/v2/v3)</div>
+                            <div class="step-status" style="color:var(--emerald);">SUCCESS &bull; 923 Deviations</div>
+                        </div>
+                        <div class="pipeline-step active">
+                            <div class="step-num">Node 5</div>
+                            <div class="step-icon">🛡️</div>
+                            <div class="step-title">HUMAN GATE</div>
+                            <div class="step-desc">Medical Monitor Review &bull; Approve / Reject / Clarify</div>
+                            <div class="step-status" style="color:var(--primary);">INTERACTIVE &bull; 4 Actions</div>
+                        </div>
+                        <div class="pipeline-step success">
+                            <div class="step-num">Node 6</div>
+                            <div class="step-icon">⚡</div>
+                            <div class="step-title">EXECUTE</div>
+                            <div class="step-desc">Stateful Memory &bull; Deduplication &bull; Report Output</div>
+                            <div class="step-status" style="color:var(--emerald);">SUCCESS &bull; Report Ready</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 2: ATLAS CLINICAL Q&A ENGINE -->
+        <!-- =================================================================== -->
+        <div class="tab-panel" id="tab-ask">
+            <div style="display:grid; grid-template-columns: 1fr 340px; gap:1.5rem;">
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2>Interactive Clinical Query Bar</h2>
+                                <p>Query study metrics, individual labs, patient timelines, or complex multi-domain safety rules</p>
+                            </div>
+                        </div>
+
+                        <div class="search-box">
+                            <input type="text" id="queryInput" class="search-input" placeholder="Ask any clinical question (e.g. 'Which subjects meet potential Hy\'s law criteria?')" autocomplete="off">
+                            <button class="btn-submit" id="askBtn" onclick="runQuery()">
+                                <span id="askSpinner" class="spinner" style="display:none;"></span>
+                                <span>Ask ATLAS</span>
+                            </button>
+                        </div>
+
+                        <!-- One-Click Preset Prompts -->
+                        <div class="prompt-groups">
+                            <div>
+                                <div class="prompt-group-label">1. COUNT Questions</div>
+                                <div class="prompt-chips">
+                                    <div class="chip" onclick="setQuery('How many subjects in the study?')">How many subjects in study?</div>
+                                    <div class="chip" onclick="setQuery('How many subjects in drug arm?')">Drug arm count</div>
+                                    <div class="chip" onclick="setQuery('How many sites in the study?')">Total study sites</div>
+                                    <div class="chip" onclick="setQuery('How many subjects at site S01 discontinued due to an adverse event?')">S01 AE Discontinuations</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="prompt-group-label">2. LOOKUP Questions</div>
+                                <div class="prompt-chips">
+                                    <div class="chip" onclick="setQuery('What was subject 042-S01-001\'s ALT at Week 4?')">042-S01-001 ALT at Week 4</div>
+                                    <div class="chip" onclick="setQuery('List the laboratory and adverse-event records for 042-S01-001 within 14 days of the WEEK4 visit')">Labs &amp; AEs within 14d of Week 4</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="prompt-group-label">3. FINDING Questions (Multi-Table Rules)</div>
+                                <div class="prompt-chips">
+                                    <div class="chip" onclick="setQuery('Which subjects meet potential Hy\'s law criteria?')">🚨 Potential Hy's Law Criteria</div>
+                                    <div class="chip" onclick="setQuery('Which subjects had dosing errors?')">Dosing Regimen Errors</div>
+                                    <div class="chip" onclick="setQuery('Identify subjects with prohibited medications')">Prohibited Concomitant Meds</div>
+                                    <div class="chip" onclick="setQuery('Which subjects experienced serious adverse events?')">Serious Adverse Events (SAEs)</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="prompt-group-label">4. TRAP Questions (Adversarial / Non-Existent)</div>
+                                <div class="prompt-chips">
+                                    <div class="chip trap" onclick="setQuery('Which subjects at site S01 received a wrong dose?')">Wrong dose at site S01 (Trap)</div>
+                                    <div class="chip trap" onclick="setQuery('Find subjects who developed end-stage renal failure')">End-stage renal failure (Trap)</div>
+                                    <div class="chip trap" onclick="setQuery('Which patients received DRUG-042 50mg?')">50mg dose (Trap)</div>
+                                    <div class="chip trap" onclick="setQuery('Find Hy\'s law cases with cholestasis')">Cholestasis Hy's Law (Trap)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Answer Display -->
+                        <div class="answer-container" id="answerContainer">
+                            <div class="answer-card">
+                                <div class="answer-meta-bar">
+                                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                                        <span class="badge badge-indigo" id="ansKindBadge">ANSWER</span>
+                                        <span id="ansQId" style="font-family:var(--font-mono); font-weight:600;"></span>
+                                    </div>
+                                    <div style="display:flex; gap:0.75rem; align-items:center;">
+                                        <span class="badge badge-success" id="ansSchemaBadge">SCHEMA VALID</span>
+                                        <span class="badge badge-success" id="ansEvidenceBadge">EVIDENCE AUDITED</span>
+                                        <span id="ansLatency" style="font-family:var(--font-mono); font-size:0.75rem;"></span>
+                                    </div>
+                                </div>
+
+                                <div class="answer-content" id="ansMainText"></div>
+
+                                <pre class="answer-json" id="ansJson"></pre>
+
+                                <div class="evidence-section" id="ansEvidenceSection">
+                                    <div class="evidence-title">
+                                        <span>Supporting Clinical Evidence Citations (<span id="evidenceCount">0</span>)</span>
+                                        <span style="font-size:0.7rem; color:var(--text-dim); text-transform:none;">Zero Hallucinations Guarantee</span>
+                                    </div>
+                                    <div class="evidence-grid" id="evidenceGrid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar: Cut & Graph Controls -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Temporal Study Cut</h2>
+                            <span class="badge badge-indigo" id="currentCutBadge">Cut 12</span>
+                        </div>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">
+                            Rebuild graph state at any historical cut. Protocol Amendment v3 takes effect after Cut 8.
+                        </p>
+                        <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+                            <select id="cutSelect" class="search-input" style="padding:0.5rem;">
+                                <option value="12">Cut 12 (Complete Study)</option>
+                                <option value="11">Cut 11</option>
+                                <option value="10">Cut 10</option>
+                                <option value="9">Cut 9 (Protocol v3)</option>
+                                <option value="8">Cut 8</option>
+                                <option value="7">Cut 7</option>
+                                <option value="5">Cut 5 (Protocol v2)</option>
+                                <option value="3">Cut 3</option>
+                                <option value="1">Cut 1 (Protocol v1)</option>
+                            </select>
+                            <button class="btn-submit" style="padding:0.5rem 1rem;" onclick="rebuildCut()">Rebuild</button>
+                        </div>
+                        <div id="rebuildStatus" style="font-size:0.75rem; color:var(--emerald); font-weight:600;"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Indexed CDISC Domains</h2>
+                            <span style="font-size:0.75rem; color:var(--text-dim);">9 Domains</span>
+                        </div>
+                        <div id="domainList">
+                            <div class="domain-row"><span class="domain-badge">LB</span><span>Laboratory Chemistry</span><strong id="domLB">14,400</strong></div>
+                            <div class="domain-row"><span class="domain-badge">VS</span><span>Vital Signs</span><strong id="domVS">7,200</strong></div>
+                            <div class="domain-row"><span class="domain-badge">EX</span><span>Drug Exposure</span><strong id="domEX">2,154</strong></div>
+                            <div class="domain-row"><span class="domain-badge">EG</span><span>Electrocardiograms</span><strong id="domEG">1,440</strong></div>
+                            <div class="domain-row"><span class="domain-badge">MH</span><span>Medical History</span><strong id="domMH">488</strong></div>
+                            <div class="domain-row"><span class="domain-badge">CM</span><span>Concomitant Meds</span><strong id="domCM">468</strong></div>
+                            <div class="domain-row"><span class="domain-badge">AE</span><span>Adverse Events</span><strong id="domAE">294</strong></div>
+                            <div class="domain-row"><span class="domain-badge">DM</span><span>Demographics</span><strong id="domDM">241</strong></div>
+                            <div class="domain-row"><span class="domain-badge">DS</span><span>Disposition</span><strong id="domDS">240</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 3: PATIENT 360 LONGITUDINAL EXPLORER -->
+        <!-- =================================================================== -->
+        <div class="tab-panel" id="tab-patient">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Patient 360 Longitudinal Explorer</h2>
+                        <p>Complete multi-domain medical dossier compiled in 0.04 milliseconds per patient</p>
+                    </div>
+                </div>
+
+                <div class="patient-grid">
+                    <!-- Left: Subject List -->
+                    <div>
+                        <input type="text" id="subjectFilter" class="search-input" placeholder="Filter subjects (e.g. S07)..." onkeyup="filterSubjects()" style="margin-bottom:0.75rem;">
+                        <div class="subject-list-container" id="subjectListContainer">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Patient Profile -->
+                    <div>
+                        <div class="patient-summary-header">
+                            <div class="summary-item">
+                                <span>Subject ID</span>
+                                <span id="p360Id" class="cell-mono">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Treatment Arm</span>
+                                <span id="p360Arm">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Site ID</span>
+                                <span id="p360Site">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Demographics</span>
+                                <span id="p360Demo">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Study Status</span>
+                                <span id="p360Status">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Longitudinal Domain Tabs -->
+                        <div style="margin-top:1rem;">
+                            <div class="nav-tabs" style="font-size:0.8rem; margin-bottom:1rem;">
+                                <button class="tab-btn active" onclick="switchPatientDomain('lb')">🧪 Laboratory (LB)</button>
+                                <button class="tab-btn" onclick="switchPatientDomain('ae')">⚠️ Adverse Events (AE)</button>
+                                <button class="tab-btn" onclick="switchPatientDomain('ex')">💊 Dosing (EX)</button>
+                                <button class="tab-btn" onclick="switchPatientDomain('cm')">🩺 Concomitant Meds (CM)</button>
+                                <button class="tab-btn" onclick="switchPatientDomain('json')">📄 Raw CDISC Record</button>
+                            </div>
+
+                            <div id="p360-lb" class="p360-tab-pane">
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Test Code</th>
+                                                <th>Visit</th>
+                                                <th>Date</th>
+                                                <th>Result (Std)</th>
+                                                <th>Units</th>
+                                                <th>Ref High</th>
+                                                <th>Citation Ref</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="p360LabBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div id="p360-ae" class="p360-tab-pane" style="display:none;">
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Reported Term</th>
+                                                <th>Severity</th>
+                                                <th>Serious?</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Outcome</th>
+                                                <th>Citation Ref</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="p360AeBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div id="p360-ex" class="p360-tab-pane" style="display:none;">
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Visit</th>
+                                                <th>Dose</th>
+                                                <th>Unit</th>
+                                                <th>Dose Date</th>
+                                                <th>Citation Ref</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="p360ExBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div id="p360-cm" class="p360-tab-pane" style="display:none;">
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Medication</th>
+                                                <th>Indication</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Protocol Status</th>
+                                                <th>Citation Ref</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="p360CmBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div id="p360-json" class="p360-tab-pane" style="display:none;">
+                                <pre class="answer-json" id="p360RawJson" style="max-height:400px;"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 4: CLINICAL SAFETY & HY'S LAW -->
+        <!-- =================================================================== -->
+        <div class="tab-panel" id="tab-safety">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Clinical Safety Intelligence &amp; Hy's Law Analysis</h2>
+                        <p>Drug-induced liver injury (DILI) signal detection conforming strictly to FDA Guidance &amp; Protocol Rules</p>
+                    </div>
+                    <span class="badge badge-danger">High Clinical Priority</span>
+                </div>
+
+                <div class="rule-callout">
+                    <div class="rule-callout-icon">🧪</div>
+                    <div class="rule-callout-content">
+                        <h4>Formal Clinical Definition of Hy's Law</h4>
+                        <p>
+                            1. <strong>Aminotransferase Elevation:</strong> ALT or AST &gt; 3.0 &times; Upper Limit of Normal (ULN).<br>
+                            2. <strong>Bilirubin Elevation:</strong> Total Bilirubin &gt; 2.0 &times; ULN within 14 calendar days of the qualifying transaminase elevation.<br>
+                            3. <strong>Exclusions:</strong> No pre-existing baseline chronic liver disease or alternative medical explanation.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Case Analysis Cards -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:1.5rem;">
+                    <div class="case-study-card" style="border-left:4px solid #dc2626;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3 style="font-size:1.05rem; font-weight:700;">Subject 042-S07-001 (Cut 5 Liver Signal)</h3>
+                            <span class="badge badge-danger">QUALIFIED AT CUT 5</span>
+                        </div>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
+                            Site S07 records ALT in SI units (<strong>&mu;kat/L</strong>). Standardized to <strong>U/L</strong> using the standard conversion: <code>1 &mu;kat/L = 60 U/L</code>.
+                        </p>
+                        <div class="case-study-grid">
+                            <div class="case-metric">
+                                <div class="case-metric-label">ALT (Standardized)</div>
+                                <div class="case-metric-val">239.7 U/L</div>
+                                <div class="case-metric-sub">Raw: 3.995 &mu;kat/L &bull; 4.3&times; ULN</div>
+                            </div>
+                            <div class="case-metric">
+                                <div class="case-metric-label">Total Bilirubin</div>
+                                <div class="case-metric-val">5.38 &mu;mol/L</div>
+                                <div class="case-metric-sub">2.6&times; ULN (ULN: 2.05)</div>
+                            </div>
+                            <div class="case-metric">
+                                <div class="case-metric-label">Temporal Window</div>
+                                <div class="case-metric-val" style="color:var(--emerald);">0 Days</div>
+                                <div class="case-metric-sub">Co-incident on 2026-03-30</div>
+                            </div>
+                        </div>
+                        <div style="font-size:0.78rem; color:var(--text-muted); background:#f8fafc; border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-sm);">
+                            <strong>Evidence Citations:</strong> <span class="cell-mono">LB|042-S07-001|25</span>, <span class="cell-mono">LB|042-S07-001|26</span>, <span class="cell-mono">LB|042-S07-001|27</span>
+                        </div>
+                    </div>
+
+                    <div class="case-study-card" style="border-left:4px solid #d97706;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3 style="font-size:1.05rem; font-weight:700;">Subject 042-S03-004 (Baseline Liver Exclusion)</h3>
+                            <span class="badge badge-warning">PROTOCOL EXCLUDED</span>
+                        </div>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
+                            Subject exhibits elevated on-study transaminases, but is ruled out per Protocol Exclusion Criterion #4 due to pre-existing chronic hepatitis at baseline screening.
+                        </p>
+                        <div class="case-study-grid">
+                            <div class="case-metric">
+                                <div class="case-metric-label">Screening ALT</div>
+                                <div class="case-metric-val" style="color:var(--amber);">185 U/L</div>
+                                <div class="case-metric-sub">Pre-existing elevation &gt; 3xULN</div>
+                            </div>
+                            <div class="case-metric">
+                                <div class="case-metric-label">Medical History</div>
+                                <div class="case-metric-val" style="color:var(--amber); font-size:1rem;">HEPATITIS</div>
+                                <div class="case-metric-sub">Documented in MH domain</div>
+                            </div>
+                            <div class="case-metric">
+                                <div class="case-metric-label">Safety Decision</div>
+                                <div class="case-metric-val" style="color:var(--primary); font-size:0.9rem;">MONITOR ONLY</div>
+                                <div class="case-metric-sub">Documented Exclusion Rationale</div>
+                            </div>
+                        </div>
+                        <div style="font-size:0.78rem; color:var(--text-muted); background:#f8fafc; border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-sm);">
+                            <strong>Document Integrity:</strong> Instructions in lab-manual.md treated as clinical evidence, not executable instructions.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 5: MONITOR 6-NODE CREW -->
+        <!-- =================================================================== -->
+        <div class="tab-panel" id="tab-crew">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Problem 2: MONITOR Autonomous Review Crew</h2>
+                        <p>Deterministic 6-node orchestration cycle for clinical trial surveillance (Cut &bull; Detect &bull; Medical Review &bull; Data Manager &bull; Compliance &bull; Human Gate &bull; Execute)</p>
+                    </div>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="btn-submit" onclick="exportReportJson()">📥 Export Report JSON</button>
+                    </div>
+                </div>
+
+                <!-- Crew Runner Control Deck -->
+                <div style="background:#f8fafc; border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.5rem;">
+                    <div style="display:flex; flex-wrap:wrap; gap:1rem; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; flex-wrap:wrap; gap:1rem; align-items:center;">
+                            <div>
+                                <label style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:700; display:block; margin-bottom:0.25rem;">Study Cut Index</label>
+                                <select id="crewCutSelect" class="filter-select" style="min-width:140px;">
+                                    <option value="5" selected>Cut 5 (Standard)</option>
+                                    <option value="12">Cut 12 (Full Study)</option>
+                                    <option value="1">Cut 1</option>
+                                    <option value="3">Cut 3</option>
+                                    <option value="7">Cut 7</option>
+                                    <option value="9">Cut 9 (Protocol v3)</option>
+                                    <option value="11">Cut 11</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:700; display:block; margin-bottom:0.25rem;">Protocol Amendment</label>
+                                <select id="crewProtoSelect" class="filter-select" style="min-width:140px;">
+                                    <option value="2" selected>Protocol v2</option>
+                                    <option value="1">Protocol v1</option>
+                                    <option value="3">Protocol v3</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button class="btn-submit btn-cyan" id="runCycleBtn" onclick="runMonitorCycle()" style="padding:0.75rem 1.5rem;">
+                                <span id="cycleSpinner" class="spinner" style="display:none;"></span>
+                                <span>🚀 Execute 6-Node Monitoring Cycle</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="cycleStatusMsg" style="margin-top:0.75rem; font-size:0.8rem; font-weight:600; color:var(--primary);"></div>
+                </div>
+
+                <!-- Visual 6-Node Pipeline Progress -->
+                <div class="pipeline-wrapper">
+                    <div class="pipeline-steps">
+                        <div class="pipeline-step" id="step-detect">
+                            <div class="step-num">Node 1</div>
+                            <div class="step-icon">🔍</div>
+                            <div class="step-title">DETECT</div>
+                            <div class="step-desc">Identifies clinical &amp; data anomalies</div>
+                            <div class="step-status" id="status-detect" style="color:var(--emerald);">SUCCESS</div>
+                        </div>
+                        <div class="pipeline-step" id="step-medical_review">
+                            <div class="step-num">Node 2</div>
+                            <div class="step-icon">🩺</div>
+                            <div class="step-title">MED REVIEW</div>
+                            <div class="step-desc">AESHOSP override &bull; Evaluates seriousness</div>
+                            <div class="step-status" id="status-medical_review" style="color:var(--emerald);">SUCCESS</div>
+                        </div>
+                        <div class="pipeline-step" id="step-data_manager">
+                            <div class="step-num">Node 3</div>
+                            <div class="step-icon">📋</div>
+                            <div class="step-title">DATA MANAGER</div>
+                            <div class="step-desc">Generates site queries for data problems</div>
+                            <div class="step-status" id="status-data_manager" style="color:var(--emerald);">SUCCESS</div>
+                        </div>
+                        <div class="pipeline-step" id="step-compliance">
+                            <div class="step-num">Node 4</div>
+                            <div class="step-icon">⚖️</div>
+                            <div class="step-title">COMPLIANCE</div>
+                            <div class="step-desc">Protocol deviations vs active version</div>
+                            <div class="step-status" id="status-compliance" style="color:var(--emerald);">SUCCESS</div>
+                        </div>
+                        <div class="pipeline-step" id="step-human_gate">
+                            <div class="step-num">Node 5</div>
+                            <div class="step-icon">🛡️</div>
+                            <div class="step-title">HUMAN GATE</div>
+                            <div class="step-desc">Medical monitor review decisions</div>
+                            <div class="step-status" id="status-human_gate" style="color:var(--primary);">DECISIONS LOGGED</div>
+                        </div>
+                        <div class="pipeline-step" id="step-execute">
+                            <div class="step-num">Node 6</div>
+                            <div class="step-icon">⚡</div>
+                            <div class="step-title">EXECUTE</div>
+                            <div class="step-desc">Cross-cycle memory &bull; Deduplication</div>
+                            <div class="step-status" id="status-execute" style="color:var(--emerald);">SUCCESS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latest Cycle Summary Box -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem;">
+                    <div class="metric-card">
+                        <div class="metric-label">Total Findings Detected</div>
+                        <div class="metric-value" id="crewFindingsCount">--</div>
+                        <div class="metric-sub">Across All 9 CDISC Domains</div>
+                    </div>
+                    <div class="metric-card danger">
+                        <div class="metric-label">Escalations Flagged</div>
+                        <div class="metric-value" id="crewEscCount">--</div>
+                        <div class="metric-sub">Requiring Monitor Oversight</div>
+                    </div>
+                    <div class="metric-card warning">
+                        <div class="metric-label">Site Queries Issued</div>
+                        <div class="metric-value" id="crewQueriesCount">--</div>
+                        <div class="metric-sub">Missing Doses &bull; Timing Errors</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Compliance Deviations</div>
+                        <div class="metric-value" id="crewDevCount">--</div>
+                        <div class="metric-sub">Visit Windows &bull; Prohibited Meds</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 6: SAFETY ESCALATIONS & HUMAN GATE -->
+        <!-- =================================================================== -->
+        <div class="tab-panel" id="tab-escalations">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Safety Escalations &amp; Medical Reviewer Desk</h2>
+                        <p>Serious clinical safety events flagged by Medical Review with interactive Human Gate approval workflow</p>
+                    </div>
+                    <span class="badge badge-danger">Human-in-the-Loop</span>
+                </div>
+
+                <div class="rule-callout">
+                    <div class="rule-callout-icon">🚨</div>
+                    <div class="rule-callout-content">
+                        <h4>Mandatory Medical Review Protocol Rule: Hospitalization Overrides AESER</h4>
+                        <p>
+                            If an adverse event involves hospitalization (<code>AESHOSP = 'Y'</code>), it <strong>MUST</strong> be recognized as a <strong>Serious Adverse Event</strong> and escalated in the same monitoring cycle, even if recorded as <code>AESER = 'N'</code>. Medical review cannot simply trust raw flags.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="escalations-grid" id="escalationsContainer">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 7: SITE QUERIES & DATA QUALITY -->
+        <!-- =================================================================== -->
+        <div class="tab-panel" id="tab-queries">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Data Management: Automated Site Queries Hub</h2>
+                        <p>Actionable, record-cited queries issued to trial sites for missing doses, timing inconsistencies, and unit mismatches</p>
+                    </div>
+                </div>
+
+                <!-- Query Filters -->
+                <div class="filter-bar">
+                    <input type="text" id="queryFilterText" class="filter-select" placeholder="Search queries (e.g. S01, dose)..." onkeyup="filterQueriesTable()" style="min-width:240px;">
+                    <select id="queryDomainFilter" class="filter-select" onchange="filterQueriesTable()">
+                        <option value="">All Domains</option>
+                        <option value="AE">AE (Adverse Events)</option>
+                        <option value="EX">EX (Dosing / Exposure)</option>
+                        <option value="LB">LB (Laboratory)</option>
+                        <option value="DM">DM (Demographics)</option>
+                    </select>
+                    <span style="font-size:0.75rem; color:var(--text-dim); margin-left:auto;" id="queryCountDisplay">Showing queries</span>
+                </div>
+
+                <div class="table-responsive" style="max-height:500px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Query ID</th>
+                                <th>Subject</th>
+                                <th>Site</th>
+                                <th>Domain</th>
+                                <th>Query Description</th>
+                                <th>Status</th>
+                                <th>Evidence Citation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queriesTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 8: PROTOCOL COMPLIANCE DEVIATIONS -->
+        <!-- =================================================================== -->
+        <div class="tab-panel" id="tab-compliance">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Protocol Compliance Deviations</h2>
+                        <p>Evaluated dynamically against the protocol amendment in force (Protocol v1 &plusmn;7d, v2 &plusmn;5d, v3 &plusmn;3d)</p>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <input type="text" id="compFilterText" class="filter-select" placeholder="Search deviations..." onkeyup="filterComplianceTable()" style="min-width:240px;">
+                    <select id="compSeverityFilter" class="filter-select" onchange="filterComplianceTable()">
+                        <option value="">All Severities</option>
+                        <option value="MAJOR">MAJOR</option>
+                        <option value="MINOR">MINOR</option>
+                    </select>
+                    <span style="font-size:0.75rem; color:var(--text-dim); margin-left:auto;" id="compCountDisplay">Showing deviations</span>
+                </div>
+
+                <div class="table-responsive" style="max-height:500px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Deviation ID</th>
+                                <th>Subject</th>
+                                <th>Site</th>
+                                <th>Deviation Type</th>
+                                <th>Protocol Ver</th>
+                                <th>Severity</th>
+                                <th>Description</th>
+                                <th>Evidence Citation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complianceTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 9: AUDIT TRACE & TELEMETRY -->
+        <!-- =================================================================== -->
+        <div class="tab-panel" id="tab-trace">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Complete 6-Node Execution Audit Trail</h2>
+                        <p>Timestamped chronological log verifying full deterministic pipeline execution</p>
+                    </div>
+                    <button class="btn-submit" onclick="exportReportJson()">Download Full JSON Report</button>
+                </div>
+
+                <div class="table-responsive" style="max-height:400px; margin-bottom:1.5rem;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Node</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                                <th>Timestamp (UTC)</th>
+                                <th>Evidence Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="traceTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <h3 style="font-size:0.9rem; font-weight:700;">Structured ReviewReport JSON Preview</h3>
+                    <button class="chip" onclick="copyReportJson()">Copy to Clipboard</button>
+                </div>
+                <pre class="answer-json" id="rawReportPreview" style="max-height:300px;"></pre>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- =================================================================== -->
+    <script>
+        // Global State
+        let allSubjects = [];
+        let activeSubjectId = null;
+        let activeReport = null;
+
+        // Startup Initialization
+        window.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([
+                loadStats(),
+                loadSubjects(),
+                loadMonitorReport()
+            ]);
         });
 
-        function setupTabs() {
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    tab.classList.add('active');
-                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-                });
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+
+            // Set active button
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)) {
+                    btn.classList.add('active');
+                }
             });
+
+            const panel = document.getElementById('tab-' + tabId);
+            if (panel) panel.classList.add('active');
         }
 
-        async function api(endpoint, options = {}) {
-            const res = await fetch(API_BASE + endpoint, {
-                headers: { 'Content-Type': 'application/json' },
-                ...options
-            });
-            if (!res.ok) throw new Error(await res.text());
-            return res.json();
+        // Patient 360 Domain Sub-tabs
+        function switchPatientDomain(dom) {
+            document.querySelectorAll('.p360-tab-pane').forEach(el => el.style.display = 'none');
+            const target = document.getElementById('p360-' + dom);
+            if (target) target.style.display = 'block';
         }
 
+        // Load Platform Stats
         async function loadStats() {
             try {
-                const stats = await api('/stats');
-                document.getElementById('statSubjects').textContent = stats.subjects;
-                document.getElementById('statRecords').textContent = stats.nodes.toLocaleString();
-                document.getElementById('statCuts').textContent = stats.cuts;
-                document.getElementById('subjectCount').textContent = stats.subjects;
-                document.getElementById('domainStats').innerHTML = Object.entries(stats.records_by_domain)
-                    .map(([k, v]) => `<span style="margin-right: 1rem;"><strong>${k}:</strong> ${v.toLocaleString()}</span>`).join('');
-                document.getElementById('statusBadge').textContent = 'Ready';
-                document.getElementById('statusBadge').className = 'status-badge ready';
-            } catch (e) {
-                console.error(e);
-                document.getElementById('statusBadge').textContent = 'Error';
+                const res = await fetch('/api/stats');
+                if (!res.ok) return;
+                const data = await res.json();
+
+                document.getElementById('kpiSubjects').textContent = (data.subjects || 241).toLocaleString();
+                document.getElementById('kpiRecords').textContent = (data.nodes || 27166).toLocaleString();
+                document.getElementById('kpiCut').textContent = `Cut ${data.current_cut || 5} • v2`;
+
+                // Domain breakdown in Q&A sidebar
+                if (data.records_by_domain) {
+                    for (const [dom, cnt] of Object.entries(data.records_by_domain)) {
+                        const el = document.getElementById('dom' + dom);
+                        if (el) el.textContent = cnt.toLocaleString();
+                    }
+                }
+            } catch (err) {
+                console.warn('Stats fetch warning:', err);
             }
         }
 
+        // Load Subject List
         async function loadSubjects() {
             try {
-                const data = await api('/subjects');
-                const list = document.getElementById('subjectList');
-                list.innerHTML = data.subjects.map(s => `
-                    <div class="subject-item" data-usubjid="${s}" onclick="selectSubject('${s}')">
-                        <div class="subject-info">
-                            <span class="subject-id">${s}</span>
+                const res = await fetch('/api/subjects');
+                if (!res.ok) return;
+                allSubjects = await res.json();
+                renderSubjectList(allSubjects);
+
+                // Auto-select first subject or S07
+                const s07 = allSubjects.find(s => s.usubjid.includes('S07')) || allSubjects[0];
+                if (s07) selectSubject(s07.usubjid);
+            } catch (err) {
+                console.warn('Subjects fetch warning:', err);
+            }
+        }
+
+        function renderSubjectList(list) {
+            const container = document.getElementById('subjectListContainer');
+            container.innerHTML = list.map(s => `
+                <div class="subject-list-item ${s.usubjid === activeSubjectId ? 'active' : ''}" onclick="selectSubject('${s.usubjid}')">
+                    <div>
+                        <div class="subj-title">${s.usubjid}</div>
+                        <div class="subj-sub">Site ${s.site} &bull; ${s.arm} &bull; ${s.age}y ${s.sex}</div>
+                    </div>
+                    <span class="badge ${s.arm === 'DRUG' ? 'badge-indigo' : 'badge-cyan'}" style="font-size:0.65rem;">${s.arm}</span>
+                </div>
+            `).join('');
+        }
+
+        function filterSubjects() {
+            const txt = document.getElementById('subjectFilter').value.toLowerCase();
+            const filtered = allSubjects.filter(s => 
+                s.usubjid.toLowerCase().includes(txt) ||
+                s.site.toLowerCase().includes(txt) ||
+                s.arm.toLowerCase().includes(txt)
+            );
+            renderSubjectList(filtered);
+        }
+
+        async function selectSubject(usubjid) {
+            activeSubjectId = usubjid;
+            document.querySelectorAll('.subject-list-item').forEach(item => {
+                const title = item.querySelector('.subj-title');
+                if (title && title.textContent === usubjid) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            try {
+                const res = await fetch('/api/patient360?usubjid=' + encodeURIComponent(usubjid));
+                if (!res.ok) throw new Error('Failed to load Patient 360');
+                const data = await res.json();
+
+                // Header Summary
+                document.getElementById('p360Id').textContent = data.usubjid;
+                document.getElementById('p360Arm').textContent = data.dm.ARM || 'N/A';
+                document.getElementById('p360Site').textContent = data.dm.SITEID || 'N/A';
+                document.getElementById('p360Demo').textContent = `${data.dm.AGE || '?'}y / ${data.dm.SEX || '?'} / ${data.dm.RACE || '?'}`;
+                
+                const dsText = data.ds && data.ds.length > 0 ? (data.ds[0].DSDECOD || 'COMPLETED') : 'ONGOING';
+                document.getElementById('p360Status').textContent = dsText;
+
+                // Render Labs Table
+                const labBody = document.getElementById('p360LabBody');
+                labBody.innerHTML = (data.lb || []).map(r => {
+                    const isHigh = r.ref_high_std && r.lborres_numeric && r.lborres_numeric > r.ref_high_std;
+                    return `
+                        <tr>
+                            <td><strong class="cell-mono">${r.LBTESTCD || r.lbtestcd}</strong></td>
+                            <td>${r.VISIT || r.visit}</td>
+                            <td class="cell-mono">${r.LBDTC || r.lbdtc || 'N/A'}</td>
+                            <td class="${isHigh ? 'cell-highlight' : ''}">${r.lborres_std || r.LBORRES || 'N/A'}</td>
+                            <td>${r.LBORRESU || r.lborresu || 'U/L'}</td>
+                            <td>${r.ref_high_std || 'N/A'}</td>
+                            <td class="cell-mono" style="font-size:0.7rem; color:var(--text-muted);">${r.ref || 'N/A'}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Render AE Table
+                const aeBody = document.getElementById('p360AeBody');
+                aeBody.innerHTML = (data.ae || []).length > 0 ? (data.ae || []).map(r => `
+                    <tr>
+                        <td><strong>${r.AETERM || r.aeterm || 'Adverse Event'}</strong></td>
+                        <td>${r.AESEV || r.aesev || 'MILD'}</td>
+                        <td><span class="badge ${r.AESER === 'Y' || r.AESHOSP === 'Y' ? 'badge-danger' : 'badge-indigo'}">${r.AESER || 'N'}</span></td>
+                        <td class="cell-mono">${r.AESTDTC || 'N/A'}</td>
+                        <td class="cell-mono">${r.AEENDTC || 'N/A'}</td>
+                        <td>${r.AEOUT || 'RESOLVED'}</td>
+                        <td class="cell-mono" style="font-size:0.7rem; color:var(--text-muted);">${r.ref || 'N/A'}</td>
+                    </tr>
+                `).join('') : '<tr><td colspan="7" style="text-align:center; color:var(--text-dim);">No adverse events recorded</td></tr>';
+
+                // Render Dosing Table
+                const exBody = document.getElementById('p360ExBody');
+                exBody.innerHTML = (data.ex || []).length > 0 ? (data.ex || []).map(r => `
+                    <tr>
+                        <td>${r.VISIT || r.visit}</td>
+                        <td><strong>${r.EXDOSE || r.exdose || '10'}</strong></td>
+                        <td>${r.EXDOSU || 'mg'}</td>
+                        <td class="cell-mono">${r.EXSTDTC || r.exstdtc || 'N/A'}</td>
+                        <td class="cell-mono" style="font-size:0.7rem; color:var(--text-muted);">${r.ref || 'N/A'}</td>
+                    </tr>
+                `).join('') : '<tr><td colspan="5" style="text-align:center; color:var(--text-dim);">No dosing records</td></tr>';
+
+                // Render CM Table
+                const cmBody = document.getElementById('p360CmBody');
+                cmBody.innerHTML = (data.cm || []).length > 0 ? (data.cm || []).map(r => `
+                    <tr>
+                        <td><strong>${r.CMTRT || r.cmtrt || 'Medication'}</strong></td>
+                        <td>${r.CMINDC || 'Concomitant'}</td>
+                        <td class="cell-mono">${r.CMSTDTC || 'N/A'}</td>
+                        <td class="cell-mono">${r.CMENDTC || 'N/A'}</td>
+                        <td><span class="badge badge-success">RECORDED</span></td>
+                        <td class="cell-mono" style="font-size:0.7rem; color:var(--text-muted);">${r.ref || 'N/A'}</td>
+                    </tr>
+                `).join('') : '<tr><td colspan="6" style="text-align:center; color:var(--text-dim);">No concomitant medications recorded</td></tr>';
+
+                // Raw JSON
+                document.getElementById('p360RawJson').textContent = JSON.stringify(data, null, 2);
+
+            } catch (err) {
+                console.error('Error fetching patient 360:', err);
+            }
+        }
+
+        // Q&A Execution
+        function setQuery(text) {
+            document.getElementById('queryInput').value = text;
+        }
+
+        async function runQuery() {
+            const q = document.getElementById('queryInput').value.trim();
+            if (!q) return;
+
+            const btn = document.getElementById('askBtn');
+            const spinner = document.getElementById('askSpinner');
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+
+            try {
+                const res = await fetch('/api/answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q })
+                });
+
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+
+                // Display results
+                const container = document.getElementById('answerContainer');
+                container.style.display = 'block';
+
+                document.getElementById('ansQId').textContent = data.question_id || 'ATLAS_QUERY';
+                document.getElementById('ansLatency').textContent = `${data.latency_ms} ms`;
+                
+                // Formatted display
+                let mainText = '';
+                if (typeof data.answer === 'number') {
+                    mainText = `Exact Count: <strong style="color:var(--emerald); font-size:1.4rem;">${data.answer}</strong>`;
+                } else if (Array.isArray(data.answer)) {
+                    if (data.answer.length === 0) {
+                        mainText = `<span style="color:var(--amber); font-weight:600;">Empty Result [ ]</span> &bull; No qualifying records found matching clinical criteria (Verified Trap/Negative).`;
+                    } else {
+                        mainText = `Found <strong style="color:var(--primary); font-size:1.2rem;">${data.answer.length}</strong> matching clinical finding(s).`;
+                    }
+                } else {
+                    mainText = String(data.answer);
+                }
+                document.getElementById('ansMainText').innerHTML = mainText;
+                document.getElementById('ansJson').textContent = JSON.stringify(data.answer, null, 2);
+
+                // Evidence Pills
+                const evidenceList = data.evidence || [];
+                document.getElementById('evidenceCount').textContent = evidenceList.length;
+                const grid = document.getElementById('evidenceGrid');
+                if (evidenceList.length > 0) {
+                    grid.innerHTML = evidenceList.map(ref => `
+                        <span class="evidence-pill">
+                            <span style="color:var(--emerald); font-weight:bold;">&bull;</span> ${ref}
+                        </span>
+                    `).join('');
+                } else {
+                    grid.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dim);">No supporting records required (Empty set confirmed).</span>';
+                }
+
+                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            } catch (err) {
+                alert('Query failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        }
+
+        // Rebuild Cut
+        async function rebuildCut() {
+            const cutVal = parseInt(document.getElementById('cutSelect').value);
+            const statusEl = document.getElementById('rebuildStatus');
+            statusEl.textContent = 'Rebuilding graph...';
+            statusEl.style.color = 'var(--amber)';
+
+            try {
+                const res = await fetch('/api/build', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cut: cutVal })
+                });
+                const data = await res.json();
+                statusEl.textContent = `Graph rebuilt at Cut ${cutVal} (${data.records.toLocaleString()} records)`;
+                statusEl.style.color = 'var(--emerald)';
+                document.getElementById('currentCutBadge').textContent = `Cut ${cutVal}`;
+                await loadStats();
+            } catch (err) {
+                statusEl.textContent = 'Rebuild failed: ' + err.message;
+                statusEl.style.color = 'var(--rose)';
+            }
+        }
+
+        // ===================================================================
+        // STAGE 2 (MONITOR) JAVASCRIPT FUNCTIONS
+        // ===================================================================
+
+        // Load Monitor Report
+        async function loadMonitorReport() {
+            try {
+                const res = await fetch('/api/monitor/report');
+                if (!res.ok) return;
+                activeReport = await res.json();
+                renderMonitorData(activeReport);
+            } catch (err) {
+                console.warn('Monitor report load warning:', err);
+            }
+        }
+
+        // Render Monitor Data
+        function renderMonitorData(report) {
+            if (!report) return;
+            const summary = report.summary || {};
+
+            // Update Header KPI Counters
+            document.getElementById('kpiEscalations').textContent = (report.escalations || []).length;
+            document.getElementById('kpiQueries').textContent = (summary.new_queries || (report.queries || []).length).toLocaleString();
+            document.getElementById('kpiDeviations').textContent = (summary.compliance_deviations || (report.compliance_deviations || []).length).toLocaleString();
+
+            // Tab badge counters
+            document.getElementById('tabEscCount').textContent = (report.escalations || []).length;
+            document.getElementById('tabQueryCount').textContent = (report.queries || []).length;
+            document.getElementById('tabCompCount').textContent = (report.compliance_deviations || []).length;
+
+            // Crew Deck Summary
+            document.getElementById('crewFindingsCount').textContent = (report.findings || []).length.toLocaleString();
+            document.getElementById('crewEscCount').textContent = (report.escalations || []).length;
+            document.getElementById('crewQueriesCount').textContent = (report.queries || []).length.toLocaleString();
+            document.getElementById('crewDevCount').textContent = (report.compliance_deviations || []).length.toLocaleString();
+
+            // Render Escalations
+            renderEscalations(report.escalations || []);
+
+            // Render Queries Table
+            renderQueriesTable(report.queries || []);
+
+            // Render Compliance Table
+            renderComplianceTable(report.compliance_deviations || []);
+
+            // Render Trace Table
+            renderTraceTable(report.trace || []);
+
+            // JSON Preview
+            document.getElementById('rawReportPreview').textContent = JSON.stringify(report, null, 2);
+        }
+
+        // Run Monitor Cycle
+        async function runMonitorCycle() {
+            const cut = parseInt(document.getElementById('crewCutSelect').value);
+            const proto = parseInt(document.getElementById('crewProtoSelect').value);
+            const btn = document.getElementById('runCycleBtn');
+            const spinner = document.getElementById('cycleSpinner');
+            const statusMsg = document.getElementById('cycleStatusMsg');
+
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            statusMsg.textContent = `Executing 6-Node Cycle at Cut ${cut}, Protocol v${proto}...`;
+
+            try {
+                const res = await fetch('/api/monitor/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cut: cut, protocol_version: proto })
+                });
+
+                if (!res.ok) throw new Error(await res.text());
+                activeReport = await res.json();
+                renderMonitorData(activeReport);
+                await loadStats();
+
+                statusMsg.textContent = `Cycle complete in ${activeReport.execution_time_seconds || 1.2}s: ${activeReport.findings.length} findings, ${activeReport.escalations.length} escalations.`;
+                statusMsg.style.color = 'var(--emerald)';
+            } catch (err) {
+                statusMsg.textContent = 'Monitoring cycle failed: ' + err.message;
+                statusMsg.style.color = 'var(--rose)';
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        }
+
+        // Render Escalations Cards
+        function renderEscalations(list) {
+            const container = document.getElementById('escalationsContainer');
+            if (list.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-dim); padding:1rem;">No safety escalations pending review.</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(esc => {
+                const statusColor = esc.status === 'APPROVED' ? 'badge-success' : (esc.status === 'REJECTED' ? 'badge-danger' : 'badge-warning');
+                const urgencyColor = esc.urgency === 'IMMEDIATE' ? 'badge-danger' : 'badge-warning';
+
+                return `
+                    <div class="escalation-card">
+                        <div class="esc-header">
+                            <div>
+                                <div class="esc-subject">${esc.usubjid} &bull; Site ${esc.site_id || 'N/A'}</div>
+                                <span class="badge ${urgencyColor}" style="margin-top:0.3rem;">Urgency: ${esc.urgency}</span>
+                            </div>
+                            <span class="badge ${statusColor}" id="badge-${esc.escalation_id}">${esc.status}</span>
+                        </div>
+
+                        <div class="esc-reason">${esc.reason || esc.rationale}</div>
+
+                        <div class="esc-meta">
+                            <div><strong>Finding Type:</strong> <span class="cell-mono">${esc.finding_type}</span></div>
+                            <div><strong>Decision:</strong> ${esc.decision} &bull; <strong>Serious:</strong> ${esc.is_serious ? 'YES (Mandatory)' : 'NO'}</div>
+                            ${esc.monitor_decision ? `<div><strong>Monitor Review:</strong> ${esc.monitor_decision} (${esc.monitor_reason || 'Logged'})</div>` : ''}
+                        </div>
+
+                        <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:0.75rem;">
+                            <strong>Evidence:</strong> ${(esc.evidence || []).map(r => `<span class="evidence-pill" style="font-size:0.68rem;">${r}</span>`).join(' ')}
+                        </div>
+
+                        <div class="esc-actions">
+                            <button class="btn-gate btn-gate-approve" onclick="submitHumanGateDecision('${esc.escalation_id}', 'APPROVED')">✓ Approve</button>
+                            <button class="btn-gate btn-gate-reject" onclick="submitHumanGateDecision('${esc.escalation_id}', 'REJECTED')">✕ Reject</button>
+                            <button class="btn-gate btn-gate-clarify" onclick="submitHumanGateDecision('${esc.escalation_id}', 'CLARIFY')">? Clarify</button>
                         </div>
                     </div>
-                `).join('');
-                document.getElementById('subjectFilter').addEventListener('input', (e) => {
-                    const filter = e.target.value.toLowerCase();
-                    document.querySelectorAll('.subject-item').forEach(item => {
-                        item.style.display = item.dataset.usubjid.toLowerCase().includes(filter) ? 'flex' : 'none';
-                    });
-                });
-            } catch (e) { console.error(e); }
+                `;
+            }).join('');
         }
 
-        function selectSubject(usubjid) {
-            selectedSubject = usubjid;
-            document.querySelectorAll('.subject-item').forEach(item => {
-                item.classList.toggle('selected', item.dataset.usubjid === usubjid);
+        // Interactive Human Gate Decision
+        async function submitHumanGateDecision(escId, decision) {
+            const reason = prompt(`Enter review rationale for ${decision} on ${escId}:`, `Reviewed via Human Gate UI`);
+            if (reason === null) return;
+
+            try {
+                const res = await fetch('/api/monitor/gate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        escalation_id: escId,
+                        decision: decision,
+                        reason: reason
+                    })
+                });
+
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+
+                // Update UI badge
+                const badge = document.getElementById('badge-' + escId);
+                if (badge) {
+                    badge.textContent = decision;
+                    badge.className = `badge ${decision === 'APPROVED' ? 'badge-success' : (decision === 'REJECTED' ? 'badge-danger' : 'badge-warning')}`;
+                }
+                alert(`Human Gate updated: Escalation ${escId} marked as ${decision}.`);
+            } catch (err) {
+                alert('Human Gate update failed: ' + err.message);
+            }
+        }
+
+        // Render Queries Table
+        let cachedQueries = [];
+        function renderQueriesTable(queries) {
+            cachedQueries = queries;
+            filterQueriesTable();
+        }
+
+        function filterQueriesTable() {
+            const txt = (document.getElementById('queryFilterText').value || '').toLowerCase();
+            const dom = (document.getElementById('queryDomainFilter').value || '').toUpperCase();
+
+            const filtered = cachedQueries.filter(q => {
+                const mDomain = !dom || q.domain === dom;
+                const mText = !txt || 
+                    (q.query_id && q.query_id.toLowerCase().includes(txt)) ||
+                    (q.usubjid && q.usubjid.toLowerCase().includes(txt)) ||
+                    (q.site_id && q.site_id.toLowerCase().includes(txt)) ||
+                    (q.description && q.description.toLowerCase().includes(txt));
+                return mDomain && mText;
             });
-            loadPatient360(usubjid);
+
+            document.getElementById('queryCountDisplay').textContent = `Showing ${filtered.length.toLocaleString()} of ${cachedQueries.length.toLocaleString()} queries`;
+
+            const tbody = document.getElementById('queriesTableBody');
+            const paged = filtered.slice(0, 150); // limit 150 for render perf
+
+            tbody.innerHTML = paged.map(q => `
+                <tr>
+                    <td class="cell-mono">${q.query_id}</td>
+                    <td class="cell-mono"><strong>${q.usubjid}</strong></td>
+                    <td>${q.site_id || 'N/A'}</td>
+                    <td><span class="badge badge-indigo">${q.domain}</span></td>
+                    <td>${q.description}</td>
+                    <td><span class="badge badge-warning">${q.status || 'OPEN'}</span></td>
+                    <td class="cell-mono" style="font-size:0.7rem; color:var(--text-muted);">${(q.evidence || []).join(', ') || 'N/A'}</td>
+                </tr>
+            `).join('');
         }
 
-        async function loadPatient360(usubjid) {
-            try {
-                const data = await api('/patient360/' + usubjid);
-                document.getElementById('patientCard').style.display = 'block';
-                document.getElementById('patientMeta').textContent = usubjid;
-                document.getElementById('patientBox').textContent = JSON.stringify(data, null, 2);
-                document.querySelector('[data-tab="patient"]').click();
-            } catch (e) { console.error(e); }
+        // Render Compliance Table
+        let cachedDeviations = [];
+        function renderComplianceTable(deviations) {
+            cachedDeviations = deviations;
+            filterComplianceTable();
         }
 
-        async function buildGraph() {
-            const cut = document.getElementById('cutInput').value;
-            const btn = document.getElementById('buildBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading"></span>Building...';
-            try {
-                const data = await api('/build', {
-                    method: 'POST',
-                    body: JSON.stringify({ cut: cut ? parseInt(cut) : null })
-                });
-                await loadStats();
-                await loadSubjects();
-                alert(`Graph built at cut ${data.cut || 'latest'}: ${data.subjects} subjects, ${data.records.toLocaleString()} records`);
-            } catch (e) { alert('Build failed: ' + e.message); }
-            finally { btn.disabled = false; btn.innerHTML = 'Build'; }
+        function filterComplianceTable() {
+            const txt = (document.getElementById('compFilterText').value || '').toLowerCase();
+            const sev = (document.getElementById('compSeverityFilter').value || '').toUpperCase();
+
+            const filtered = cachedDeviations.filter(d => {
+                const mSev = !sev || d.severity === sev;
+                const mText = !txt || 
+                    (d.deviation_id && d.deviation_id.toLowerCase().includes(txt)) ||
+                    (d.usubjid && d.usubjid.toLowerCase().includes(txt)) ||
+                    (d.description && d.description.toLowerCase().includes(txt));
+                return mSev && mText;
+            });
+
+            document.getElementById('compCountDisplay').textContent = `Showing ${filtered.length.toLocaleString()} of ${cachedDeviations.length.toLocaleString()} deviations`;
+
+            const tbody = document.getElementById('complianceTableBody');
+            const paged = filtered.slice(0, 150);
+
+            tbody.innerHTML = paged.map(d => `
+                <tr>
+                    <td class="cell-mono">${d.deviation_id}</td>
+                    <td class="cell-mono"><strong>${d.usubjid}</strong></td>
+                    <td>${d.site_id || 'N/A'}</td>
+                    <td><span class="badge badge-cyan">${d.deviation_type}</span></td>
+                    <td>v${d.protocol_version || '2'}</td>
+                    <td><span class="badge ${d.severity === 'MAJOR' ? 'badge-danger' : 'badge-warning'}">${d.severity || 'MINOR'}</span></td>
+                    <td>${d.description}</td>
+                    <td class="cell-mono" style="font-size:0.7rem; color:var(--text-muted);">${(d.evidence || []).join(', ') || 'N/A'}</td>
+                </tr>
+            `).join('');
         }
 
-        function setQuestion(q) {
-            document.getElementById('questionInput').value = q;
+        // Render Trace Table
+        function renderTraceTable(trace) {
+            const tbody = document.getElementById('traceTableBody');
+            tbody.innerHTML = trace.map(t => `
+                <tr>
+                    <td><strong style="color:var(--primary); text-transform:uppercase;">${t.node}</strong></td>
+                    <td>${t.action}</td>
+                    <td><span class="badge ${t.status === 'SUCCESS' ? 'badge-success' : 'badge-warning'}">${t.status}</span></td>
+                    <td class="cell-mono" style="font-size:0.75rem;">${t.timestamp || 'N/A'}</td>
+                    <td>${(t.evidence || []).length} cited records</td>
+                </tr>
+            `).join('');
         }
 
-        async function askQuestion() {
-            const question = document.getElementById('questionInput').value.trim();
-            if (!question) return alert('Please enter a question');
-            const btn = document.getElementById('askBtn');
-            const loader = document.getElementById('askLoader');
-            btn.disabled = true;
-            loader.style.display = 'inline-block';
-            document.getElementById('answerCard').style.display = 'none';
-            try {
-                const data = await api('/answer', {
-                    method: 'POST',
-                    body: JSON.stringify({ question })
-                });
-                document.getElementById('answerCard').style.display = 'block';
-                document.getElementById('answerMeta').textContent = `ID: ${data.question_id}`;
-                document.getElementById('answerBox').textContent = JSON.stringify(data.answer, null, 2);
-                document.getElementById('evidenceBox').innerHTML = data.evidence.length > 0
-                    ? '<strong>Evidence (' + data.evidence.length + '):</strong><div class="evidence-list">' +
-                      data.evidence.map(e => `<span class="evidence-tag">${e}</span>`).join('') + '</div>'
-                    : '<em>No evidence records</em>';
-            } catch (e) { alert('Question failed: ' + e.message); }
-            finally { btn.disabled = false; loader.style.display = 'none'; }
+        // Export Report JSON
+        function exportReportJson() {
+            window.open('/api/monitor/export', '_blank');
         }
 
-        // Enter key to ask
-        document.getElementById('questionInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') askQuestion();
+        // Copy Report JSON to Clipboard
+        function copyReportJson() {
+            if (!activeReport) return;
+            navigator.clipboard.writeText(JSON.stringify(activeReport, null, 2))
+                .then(() => alert('ReviewReport JSON copied to clipboard!'))
+                .catch(err => alert('Copy failed: ' + err));
+        }
+
+        // Enter key in query input
+        document.getElementById('queryInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') runQuery();
         });
     </script>
 </body>

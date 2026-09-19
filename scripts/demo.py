@@ -1,6 +1,14 @@
 """
 Complete in-process test demonstrating all ATLAS capabilities
 """
+import os
+import sys
+
+# Ensure repository root is on sys.path
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
+
 from atlas import StudyGraph, Atlas
 import json
 
@@ -9,7 +17,9 @@ print("ATLAS - Study Sentinel Problem 1 - Complete Demo")
 print("=" * 60)
 
 # Build graph
-data_dir = "hackathon-data/hackathon-data"
+data_dir = os.path.join(REPO_ROOT, "hackathon-data")
+if os.path.exists(os.path.join(data_dir, "hackathon-data")):
+    data_dir = os.path.join(data_dir, "hackathon-data")
 graph = StudyGraph(data_dir)
 graph.build()
 

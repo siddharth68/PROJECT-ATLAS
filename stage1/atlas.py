@@ -34,8 +34,15 @@ def main():
     if os.path.exists(os.path.join(data_dir, "hackathon-data")):
         data_dir = os.path.join(data_dir, "hackathon-data")
 
+    cut = args.cut
+    if cut is None and args.question:
+        import re
+        m = re.search(r'\bcut\s*(?:=|is|at)?\s*(\d+)\b', args.question.lower())
+        if m:
+            cut = int(m.group(1))
+
     graph = StudyGraph(data_dir)
-    graph.build(cut=args.cut)
+    graph.build(cut=cut)
     atlas = Atlas(graph)
 
     if args.question:
