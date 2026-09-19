@@ -533,8 +533,13 @@ def run(port: int = 8000):
         httpd.server_close()
 
 
+# Export top-level symbols for Vercel Serverless Functions
+handler = AtlasDashboardHandler
+app = AtlasDashboardHandler
+
 if __name__ == "__main__":
     port_arg = 8000
     if len(sys.argv) > 1 and sys.argv[1].isdigit():
         port_arg = int(sys.argv[1])
     run(port=port_arg)
+
