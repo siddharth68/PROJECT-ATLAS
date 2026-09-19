@@ -500,18 +500,20 @@ class AtlasDashboardHandler(http.server.BaseHTTPRequestHandler):
         self.send_json(404, {"error": f"POST endpoint {path} not found"})
 
 
-def run(port: int = 8000):
+def run(port: int = 8000, host: str = "0.0.0.0"):
     """Start the pure Python combined ATLAS + MONITOR dashboard server."""
-    server_address = ("127.0.0.1", port)
+    env_port = os.environ.get("PORT")
+    if env_port and env_port.isdigit():
+        port = int(env_port)
+    server_address = (host, port)
     try:
         httpd = http.server.HTTPServer(server_address, AtlasDashboardHandler)
     except OSError:
-        # Port fallback
-        server_address = ("127.0.0.1", 8080)
+        server_address = (host, 8080)
         httpd = http.server.HTTPServer(server_address, AtlasDashboardHandler)
 
     active_port = server_address[1]
-    url = f"http://127.0.0.1:{active_port}"
+    url = f"http://localhost:{active_port}"
 
     print("=" * 76)
     print("      ATLAS // STUDY SENTINEL — CLINICAL INTELLIGENCE PLATFORM")
